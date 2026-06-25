@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini Games</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .hero {
+      padding: 2.5rem 0 1.5rem;
+    }
+    .hero h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      margin-bottom: 0.4rem;
+    }
+    .hero p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+  <nav class="site-nav">
+    <a href="index.html" class="logo">🎮 Mini Games</a>
+    <ul class="nav-links">
+      <li><a href="wordle.html">Wordle</a></li>
+      <li><a href="connections.html">Connections</a></li>
+      <li><a href="crossword.html">Crossword</a></li>
+    </ul>
+  </nav>
+
+  <div class="page-wrapper">
+    <div class="hero">
+      <h1>Today's Games</h1>
+      <p>Three puzzles, curated fresh. Pick your challenge.</p>
+    </div>
+
+    <p class="section-label">Play now</p>
+
+    <div class="game-grid">
+      <a href="wordle.html" class="game-card">
+        <div class="icon icon-wordle">🟩</div>
+        <div>
+          <h2>Wordle</h2>
+          <p>Guess the 5-letter word in 6 tries. Green = right spot, yellow = wrong spot.</p>
+        </div>
+      </a>
+
+      <a href="connections.html" class="game-card">
+        <div class="icon icon-connect">🔵</div>
+        <div>
+          <h2>Connections</h2>
+          <p>Find four groups of four words that share something in common.</p>
+        </div>
+      </a>
+
+      <a href="crossword.html" class="game-card">
+        <div class="icon icon-cross">✏️</div>
+        <div>
+          <h2>Mini Crossword</h2>
+          <p>A 5×5 crossword puzzle. Across and down clues to fill every square.</p>
+        </div>
+      </a>
+    </div>
+  </div>
+</body>
+</html>

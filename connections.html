@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connections – Mini Games</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .instructions {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .mistakes {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    .dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: #1a1a18;
+      transition: background 0.3s;
+    }
+
+    .dot.used { background: #d3d6da; }
+
+    .word-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 1.25rem;
+    }
+
+    .word-btn {
+      aspect-ratio: 1.6;
+      border-radius: 8px;
+      border: 2px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 4px;
+      user-select: none;
+    }
+
+    .word-btn:hover { border-color: #888; }
+    .word-btn.selected { background: #5a594f; color: #fff; border-color: #5a594f; }
+    .word-btn.shake { animation: shake 0.4s ease; }
+
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%     { transform: translateX(-5px); }
+      40%     { transform: translateX(5px); }
+      60%     { transform: translateX(-3px); }
+      80%     { transform: translateX(3px); }
+    }
+
+    .solved-row {
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .solved-row .group-title {
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .solved-row .group-words {
+      font-size: 0.875rem;
+      font-weight: 500;
+      opacity: 0.9;
+    }
+
+    .color-yellow { background: #f9df6d; color: #4a3d00; }
+    .color-green  { background: #a0c35a; color: #1a3300; }
+    .color-blue   { background: #b0c4ef; color: #0c2060; }
+    .color-purple { background: #ba81c5; color: #2d0040; }
+
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .one-away {
+      background: #fff3cd;
+      color: #664d03;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      display: none;
+    }
+
+    .one-away.show { display: block; }
+
+    @media (max-width: 480px) {
+      .word-btn { font-size: 0.7rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="site-nav">
+    <a href="index.html" class="logo">🎮 Mini Games</a>
+    <ul class="nav-links">
+      <li><a href="wordle.html">Wordle</a></li>
+      <li><a href="connections.html" class="active">Connections</a></li>
+      <li><a href="crossword.html">Crossword</a></li>
+    </ul>
+  </nav>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <div class="page-wrapper">
+    <h1 class="page-title">Connections</h1>
+    <p class="page-subtitle">Group the 16 words into four categories</p>
+
+    <div id="solvedArea"></div>
+
+    <div class="word-grid" id="wordGrid"></div>
+
+    <div class="one-away" id="oneAway">One away…</div>
+
+    <div class="mistakes">
+      <span>Mistakes remaining:</span>
+      <div class="dot" id="d0"></div>
+      <div class="dot" id="d1"></div>
+      <div class="dot" id="d2"></div>
+      <div class="dot" id="d3"></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-secondary" onclick="shuffle()">Shuffle</button>
+      <button class="btn btn-secondary" onclick="deselectAll()">Deselect all</button>
+      <button class="btn btn-primary" onclick="submitGuess()">Submit →</button>
+    </div>
+
+    <div class="result-banner" id="resultBanner"></div>
+  </div>
+
+  <script src="puzzles.js"></script>
+  <script>
+    const GROUPS = PUZZLES.connections.groups;
+    let allWords = [];
+    GROUPS.forEach(g => g.words.forEach(w => allWords.push({ word: w, group: g })));
+
+    // Shuffle helper
+    function shuffleArr(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    shuffleArr(allWords);
+
+    let selected = new Set();
+    let mistakes = 0;
+    let solvedGroups = 0;
+    let gameOver = false;
+    let wordEls = {};
+
+    function renderGrid() {
+      const grid = document.getElementById("wordGrid");
+      grid.innerHTML = "";
+      allWords.forEach(item => {
+        if (item.solved) return;
+        const btn = document.createElement("button");
+        btn.className = "word-btn" + (selected.has(item.word) ? " selected" : "");
+        btn.textContent = item.word;
+        btn.onclick = () => toggleWord(item.word, btn);
+        wordEls[item.word] = btn;
+        grid.appendChild(btn);
+      });
+    }
+
+    function toggleWord(word, btn) {
+      if (gameOver) return;
+      if (selected.has(word)) {
+        selected.delete(word);
+        btn.classList.remove("selected");
+      } else {
+        if (selected.size >= 4) { toast("Select exactly 4 words"); return; }
+        selected.add(word);
+        btn.classList.add("selected");
+      }
+    }
+
+    function deselectAll() {
+      selected.clear();
+      document.querySelectorAll(".word-btn.selected").forEach(b => b.classList.remove("selected"));
+    }
+
+    function shuffle() {
+      const remaining = allWords.filter(w => !w.solved);
+      shuffleArr(remaining);
+      allWords = [...allWords.filter(w => w.solved), ...remaining];
+      renderGrid();
+    }
+
+    function submitGuess() {
+      if (gameOver) return;
+      if (selected.size !== 4) { toast("Select exactly 4 words"); return; }
+
+      const selArr = [...selected];
+      // Find which group each word belongs to
+      const groupCounts = {};
+      GROUPS.forEach((g, gi) => { groupCounts[gi] = 0; });
+      selArr.forEach(w => {
+        GROUPS.forEach((g, gi) => {
+          if (g.words.includes(w)) groupCounts[gi]++;
+        });
+      });
+
+      const correctGroup = GROUPS.findIndex((g, gi) => groupCounts[gi] === 4);
+      const bestCount = Math.max(...Object.values(groupCounts));
+
+      if (correctGroup !== -1) {
+        const group = GROUPS[correctGroup];
+        // Mark solved
+        allWords.forEach(item => {
+          if (item.group === group) item.solved = true;
+        });
+        selected.clear();
+        solvedGroups++;
+        renderSolvedRow(group);
+        document.getElementById("oneAway").classList.remove("show");
+
+        if (solvedGroups === GROUPS.length) {
+          gameOver = true;
+          showResult("win", "Excellent! You found all four groups! 🎉");
+        } else {
+          toast("Correct!");
+        }
+        renderGrid();
+      } else {
+        // Wrong
+        if (bestCount === 3) {
+          document.getElementById("oneAway").classList.add("show");
+          setTimeout(() => document.getElementById("oneAway").classList.remove("show"), 2000);
+        } else {
+          document.getElementById("oneAway").classList.remove("show");
+        }
+
+        mistakes++;
+        const dot = document.getElementById("d" + (mistakes - 1));
+        if (dot) dot.classList.add("used");
+
+        // Shake selected
+        selArr.forEach(w => {
+          const el = wordEls[w];
+          if (el) { el.classList.remove("shake"); void el.offsetWidth; el.classList.add("shake"); }
+        });
+
+        toast("Not quite — try again");
+
+        if (mistakes >= 4) {
+          gameOver = true;
+          // Reveal all
+          setTimeout(() => {
+            GROUPS.forEach(g => {
+              allWords.forEach(item => { if (item.group === g) item.solved = true; });
+              renderSolvedRow(g);
+            });
+            allWords = allWords.map(w => ({ ...w, solved: true }));
+            renderGrid();
+            showResult("lose", "Out of guesses! The groups are shown above.");
+          }, 500);
+        }
+      }
+    }
+
+    function renderSolvedRow(group) {
+      const area = document.getElementById("solvedArea");
+      const row = document.createElement("div");
+      row.className = "solved-row color-" + group.color;
+      row.innerHTML = `<div class="group-title">${group.title}</div>
+        <div class="group-words">${group.words.join(", ")}</div>`;
+      area.appendChild(row);
+    }
+
+    function toast(msg) {
+      const el = document.createElement("div");
+      el.className = "toast";
+      el.textContent = msg;
+      document.getElementById("toastContainer").appendChild(el);
+      setTimeout(() => el.remove(), 2100);
+    }
+
+    function showResult(type, msg) {
+      const b = document.getElementById("resultBanner");
+      b.textContent = msg;
+      b.className = "result-banner show " + type;
+    }
+
+    renderGrid();
+  </script>
+</body>
+</html>

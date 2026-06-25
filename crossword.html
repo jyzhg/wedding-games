@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crossword – Mini Games</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .crossword-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .grid-wrap {
+      display: inline-block;
+    }
+
+    .cw-grid {
+      display: grid;
+      border: 2px solid #1a1a18;
+      border-radius: 4px;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .cw-cell {
+      width: 64px;
+      height: 64px;
+      border: 1px solid #ccc;
+      position: relative;
+      background: #fff;
+    }
+
+    .cw-cell.black {
+      background: #1a1a18;
+      border-color: #1a1a18;
+    }
+
+    .cw-cell input {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: transparent;
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #1a1a18;
+      caret-color: transparent;
+      outline: none;
+      cursor: pointer;
+      padding-top: 10px;
+    }
+
+    .cw-cell.active { background: #c8e6ff; }
+    .cw-cell.highlighted { background: #e8f4ff; }
+    .cw-cell.correct input { color: #2e7d32; }
+    .cw-cell.incorrect input { color: #c62828; }
+
+    .cw-cell .cell-num {
+      position: absolute;
+      top: 2px;
+      left: 3px;
+      font-size: 0.55rem;
+      font-weight: 700;
+      color: #444;
+      pointer-events: none;
+      line-height: 1;
+    }
+
+    .clues-panel {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .clue-section h3 {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .clue-list {
+      list-style: none;
+    }
+
+    .clue-list li {
+      font-size: 0.85rem;
+      padding: 0.3rem 0.5rem;
+      border-radius: var(--radius);
+      cursor: pointer;
+      line-height: 1.35;
+      color: var(--text);
+      transition: background 0.1s;
+    }
+
+    .clue-list li:hover { background: var(--bg); }
+    .clue-list li.active-clue { background: #c8e6ff; }
+    .clue-list li .num { font-weight: 700; margin-right: 4px; }
+
+    .crossword-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    @media (max-width: 480px) {
+      .cw-cell { width: 52px; height: 52px; }
+      .cw-cell input { font-size: 1.1rem; padding-top: 8px; }
+      .clues-panel { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 360px) {
+      .cw-cell { width: 44px; height: 44px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="site-nav">
+    <a href="index.html" class="logo">🎮 Mini Games</a>
+    <ul class="nav-links">
+      <li><a href="wordle.html">Wordle</a></li>
+      <li><a href="connections.html">Connections</a></li>
+      <li><a href="crossword.html" class="active">Crossword</a></li>
+    </ul>
+  </nav>
+
+  <div class="page-wrapper">
+    <h1 class="page-title">Mini Crossword</h1>
+    <p class="page-subtitle">Fill in the grid — click a clue or a square to begin</p>
+
+    <div class="crossword-area">
+      <div class="grid-wrap">
+        <div class="cw-grid" id="cwGrid"></div>
+      </div>
+
+      <div class="crossword-actions">
+        <button class="btn btn-secondary" onclick="checkPuzzle()">Check</button>
+        <button class="btn btn-secondary" onclick="revealAll()">Reveal</button>
+        <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+      </div>
+
+      <div class="clues-panel" id="cluesPanel"></div>
+    </div>
+
+    <div class="result-banner" id="resultBanner"></div>
+  </div>
+
+  <script src="puzzles.js"></script>
+  <script>
+    const { grid: GRID, clues: CLUES } = PUZZLES.crossword;
+    const ROWS = GRID.length, COLS = GRID[0].length;
+
+    // -- Build grid DOM
+    const cwGrid = document.getElementById("cwGrid");
+    cwGrid.style.gridTemplateColumns = `repeat(${COLS}, auto)`;
+
+    const cellEls = [];
+    const inputEls = [];
+
+    // Number the grid
+    const numbers = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+    let numCounter = 1;
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        if (GRID[r][c] === "#") continue;
+        const startsAcross = (c === 0 || GRID[r][c-1] === "#") && c + 1 < COLS && GRID[r][c+1] !== "#";
+        const startsDown   = (r === 0 || GRID[r-1][c] === "#") && r + 1 < ROWS && GRID[r+1][c] !== "#";
+        if (startsAcross || startsDown) { numbers[r][c] = numCounter++; }
+      }
+    }
+
+    for (let r = 0; r < ROWS; r++) {
+      cellEls[r] = [];
+      inputEls[r] = [];
+      for (let c = 0; c < COLS; c++) {
+        const cell = document.createElement("div");
+        cell.className = "cw-cell" + (GRID[r][c] === "#" ? " black" : "");
+        cell.dataset.r = r; cell.dataset.c = c;
+        if (GRID[r][c] !== "#") {
+          if (numbers[r][c]) {
+            const num = document.createElement("span");
+            num.className = "cell-num";
+            num.textContent = numbers[r][c];
+            cell.appendChild(num);
+          }
+          const inp = document.createElement("input");
+          inp.maxLength = 1;
+          inp.dataset.r = r; inp.dataset.c = c;
+          cell.appendChild(inp);
+          inputEls[r][c] = inp;
+
+          inp.addEventListener("click", () => handleCellClick(r, c));
+          inp.addEventListener("keydown", e => handleKeyDown(e, r, c));
+          inp.addEventListener("input", e => handleInput(e, r, c));
+        }
+        cwGrid.appendChild(cell);
+        cellEls[r][c] = cell;
+      }
+    }
+
+    // -- State
+    let activeR = -1, activeC = -1, direction = "across";
+
+    function findClueAt(r, c, dir) {
+      if (dir === "across") {
+        let sc = c;
+        while (sc > 0 && GRID[r][sc-1] !== "#") sc--;
+        return numbers[r][sc];
+      } else {
+        let sr = r;
+        while (sr > 0 && GRID[sr-1][c] !== "#") sr--;
+        return numbers[sr][c];
+      }
+    }
+
+    function highlightClue(clueNum, dir) {
+      // Clear
+      for (let r = 0; r < ROWS; r++)
+        for (let c = 0; c < COLS; c++)
+          if (cellEls[r][c]) cellEls[r][c].classList.remove("highlighted", "active");
+
+      // Highlight clue cells
+      if (dir === "across") {
+        const clue = CLUES.across.find(cl => cl.number === clueNum);
+        if (clue) for (let i = 0; i < clue.length; i++) cellEls[clue.row][clue.col + i]?.classList.add("highlighted");
+      } else {
+        const clue = CLUES.down.find(cl => cl.number === clueNum);
+        if (clue) for (let i = 0; i < clue.length; i++) cellEls[clue.row + i]?.[clue.col]?.classList.add("highlighted");
+      }
+
+      if (activeR >= 0 && activeC >= 0 && cellEls[activeR][activeC])
+        cellEls[activeR][activeC].classList.add("active");
+
+      // Highlight clue in list
+      document.querySelectorAll(".clue-list li").forEach(li => li.classList.remove("active-clue"));
+      const key = dir + "-" + clueNum;
+      const liEl = document.querySelector(`[data-clue="${key}"]`);
+      if (liEl) { liEl.classList.add("active-clue"); liEl.scrollIntoView({ block: "nearest" }); }
+    }
+
+    function handleCellClick(r, c) {
+      if (activeR === r && activeC === c) {
+        direction = direction === "across" ? "down" : "across";
+      }
+      activeR = r; activeC = c;
+      inputEls[r][c].focus();
+      const cn = findClueAt(r, c, direction);
+      if (cn) highlightClue(cn, direction);
+    }
+
+    function handleInput(e, r, c) {
+      const val = e.target.value.replace(/[^a-zA-Z]/g, "").slice(-1).toUpperCase();
+      e.target.value = val;
+      if (val) moveNext(r, c);
+      checkComplete();
+    }
+
+    function handleKeyDown(e, r, c) {
+      if (e.key === "Backspace") {
+        if (inputEls[r][c].value === "") movePrev(r, c);
+        else inputEls[r][c].value = "";
+        e.preventDefault();
+        checkComplete();
+      } else if (e.key === "ArrowRight") { direction = "across"; moveInDir(r, c, 0, 1); e.preventDefault(); }
+      else if (e.key === "ArrowLeft")  { direction = "across"; moveInDir(r, c, 0, -1); e.preventDefault(); }
+      else if (e.key === "ArrowDown")  { direction = "down"; moveInDir(r, c, 1, 0); e.preventDefault(); }
+      else if (e.key === "ArrowUp")    { direction = "down"; moveInDir(r, c, -1, 0); e.preventDefault(); }
+      else if (e.key === "Tab") {
+        e.preventDefault();
+        cycleClue(e.shiftKey ? -1 : 1);
+      }
+    }
+
+    function moveNext(r, c) {
+      const [dr, dc] = direction === "across" ? [0, 1] : [1, 0];
+      let nr = r + dr, nc = c + dc;
+      while (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS) {
+        if (GRID[nr][nc] !== "#") { activeR = nr; activeC = nc; inputEls[nr][nc].focus(); highlightClue(findClueAt(nr, nc, direction), direction); return; }
+        nr += dr; nc += dc;
+      }
+    }
+
+    function movePrev(r, c) {
+      const [dr, dc] = direction === "across" ? [0, -1] : [-1, 0];
+      let nr = r + dr, nc = c + dc;
+      while (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS) {
+        if (GRID[nr][nc] !== "#") { activeR = nr; activeC = nc; inputEls[nr][nc].focus(); highlightClue(findClueAt(nr, nc, direction), direction); return; }
+        nr += dr; nc += dc;
+      }
+    }
+
+    function moveInDir(r, c, dr, dc) {
+      let nr = r + dr, nc = c + dc;
+      while (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS) {
+        if (GRID[nr][nc] !== "#") { activeR = nr; activeC = nc; inputEls[nr][nc].focus(); highlightClue(findClueAt(nr, nc, direction), direction); return; }
+        nr += dr; nc += dc;
+      }
+    }
+
+    // All clues in order for tab cycling
+    const allClues = [
+      ...CLUES.across.map(cl => ({ ...cl, dir: "across" })),
+      ...CLUES.down.map(cl => ({ ...cl, dir: "down" }))
+    ].sort((a, b) => a.number - b.number || (a.dir === "across" ? -1 : 1));
+
+    let clueIdx = 0;
+
+    function cycleClue(delta) {
+      clueIdx = (clueIdx + delta + allClues.length) % allClues.length;
+      const cl = allClues[clueIdx];
+      direction = cl.dir;
+      activeR = cl.row; activeC = cl.col;
+      inputEls[cl.row][cl.col].focus();
+      highlightClue(cl.number, cl.dir);
+    }
+
+    // Build clue panel
+    const panel = document.getElementById("cluesPanel");
+    ["across", "down"].forEach(dir => {
+      const sec = document.createElement("div");
+      sec.className = "clue-section";
+      sec.innerHTML = `<h3>${dir}</h3>`;
+      const ul = document.createElement("ul");
+      ul.className = "clue-list";
+      CLUES[dir].forEach(cl => {
+        const li = document.createElement("li");
+        li.dataset.clue = dir + "-" + cl.number;
+        li.innerHTML = `<span class="num">${cl.number}.</span>${cl.clue}`;
+        li.addEventListener("click", () => {
+          direction = dir;
+          activeR = cl.row; activeC = cl.col;
+          inputEls[cl.row][cl.col].focus();
+          highlightClue(cl.number, dir);
+        });
+        ul.appendChild(li);
+      });
+      sec.appendChild(ul);
+      panel.appendChild(sec);
+    });
+
+    function checkPuzzle() {
+      let allCorrect = true;
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          if (GRID[r][c] === "#") continue;
+          const cell = cellEls[r][c];
+          const val = inputEls[r][c].value.toUpperCase();
+          cell.classList.remove("correct", "incorrect");
+          if (!val) { allCorrect = false; continue; }
+          if (val === GRID[r][c]) cell.classList.add("correct");
+          else { cell.classList.add("incorrect"); allCorrect = false; }
+        }
+      }
+      if (allCorrect) showResult("win", "Perfect! Puzzle complete! 🎉");
+    }
+
+    function revealAll() {
+      for (let r = 0; r < ROWS; r++)
+        for (let c = 0; c < COLS; c++)
+          if (GRID[r][c] !== "#") { inputEls[r][c].value = GRID[r][c]; cellEls[r][c].classList.add("correct"); }
+      showResult("win", "Puzzle revealed! Try it fresh next time. 😊");
+    }
+
+    function clearAll() {
+      for (let r = 0; r < ROWS; r++)
+        for (let c = 0; c < COLS; c++)
+          if (GRID[r][c] !== "#") { inputEls[r][c].value = ""; cellEls[r][c].classList.remove("correct","incorrect"); }
+      document.getElementById("resultBanner").className = "result-banner";
+    }
+
+    function checkComplete() {
+      for (let r = 0; r < ROWS; r++)
+        for (let c = 0; c < COLS; c++)
+          if (GRID[r][c] !== "#" && inputEls[r][c].value.toUpperCase() !== GRID[r][c]) return;
+      showResult("win", "Puzzle complete! Well done! 🎉");
+    }
+
+    function showResult(type, msg) {
+      const b = document.getElementById("resultBanner");
+      b.textContent = msg;
+      b.className = "result-banner show " + type;
+    }
+
+    // Focus first cell
+    if (inputEls[0] && inputEls[0][0]) {
+      activeR = 0; activeC = 0;
+      inputEls[0][0].focus();
+      highlightClue(numbers[0][0], "across");
+    }
+  </script>
+</body>
+</html>

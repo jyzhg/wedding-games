@@ -1,0 +1,256 @@
+/* ==============================
+   MINI GAMES — Shared Styles
+   ============================== */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f9f7f4;
+  --surface: #ffffff;
+  --border: #e0dbd4;
+  --text: #1a1a18;
+  --text-muted: #6b6760;
+  --accent: #2b2b28;
+  --radius: 8px;
+  --radius-lg: 14px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+/* ---- NAV ---- */
+.site-nav {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.site-nav .logo {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.site-nav .nav-links {
+  display: flex;
+  gap: 0.25rem;
+  list-style: none;
+}
+
+.site-nav .nav-links a {
+  text-decoration: none;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius);
+  transition: background 0.15s, color 0.15s;
+}
+
+.site-nav .nav-links a:hover,
+.site-nav .nav-links a.active {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ---- PAGE LAYOUT ---- */
+.page-wrapper {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.page-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.25rem;
+}
+
+.page-subtitle {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 2rem;
+}
+
+/* ---- BUTTON ---- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+  background: var(--text);
+  color: #fff;
+}
+
+.btn-primary:hover { opacity: 0.85; }
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover { background: var(--bg); }
+
+/* ---- GAME CARD (home page) ---- */
+.game-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.game-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  text-decoration: none;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  transition: box-shadow 0.15s, transform 0.1s;
+}
+
+.game-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  transform: translateY(-1px);
+}
+
+.game-card .icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.icon-wordle  { background: #e8f5e9; }
+.icon-connect { background: #e3f2fd; }
+.icon-cross   { background: #fce4ec; }
+
+.game-card h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 0.15rem;
+}
+
+.game-card p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* ---- WIN / LOSE banner ---- */
+.result-banner {
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 1rem;
+  text-align: center;
+  margin-top: 1.5rem;
+  display: none;
+}
+
+.result-banner.win  { background: #e8f5e9; color: #2e7d32; }
+.result-banner.lose { background: #fce4ec; color: #c62828; }
+.result-banner.show { display: block; }
+
+/* ---- KEYBOARD ---- */
+.keyboard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+
+.keyboard-row {
+  display: flex;
+  gap: 5px;
+}
+
+.key {
+  height: 56px;
+  min-width: 36px;
+  padding: 0 6px;
+  border-radius: 5px;
+  border: none;
+  background: #d3d6da;
+  color: #1a1a18;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.key.wide { min-width: 54px; font-size: 0.7rem; }
+.key.correct { background: #538d4e; color: #fff; }
+.key.present { background: #b59f3b; color: #fff; }
+.key.absent  { background: #818384; color: #fff; }
+
+/* ---- TOAST ---- */
+.toast-container {
+  position: fixed;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  background: var(--text);
+  color: #fff;
+  padding: 0.6rem 1.25rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  animation: toastIn 0.2s ease, toastOut 0.3s ease 1.7s forwards;
+}
+
+@keyframes toastIn  { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+@keyframes toastOut { from { opacity:1; } to { opacity:0; } }
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 480px) {
+  .page-wrapper { padding: 1.25rem 1rem 3rem; }
+  .key { min-width: 30px; height: 50px; font-size: 0.75rem; }
+  .key.wide { min-width: 44px; }
+}
