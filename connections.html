@@ -325,12 +325,16 @@
   <canvas id="confettiCanvas" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9999;"></canvas>
   <script>
     (function() {
-      const canvas  = document.getElementById('confettiCanvas');
-      const ctx     = canvas.getContext('2d');
+      const canvas = document.getElementById('confettiCanvas');
+      const ctx    = canvas.getContext('2d');
       let particles = [];
       let animId    = null;
-      const img     = new Image();
-      img.src       = 'maomi_confetti.png';
+      let imgReady  = false;
+
+      const img = new Image();
+      img.onload = () => { imgReady = true; };
+      img.onerror = () => console.warn('maomi_confetti.png not found — make sure it is in the same folder.');
+      img.src = 'maomi_confetti.png';
 
       function resize() {
         canvas.width  = window.innerWidth;
@@ -342,33 +346,35 @@
       function randomBetween(a, b) { return a + Math.random() * (b - a); }
 
       function spawnParticle() {
-        const size = randomBetween(36, 72);
+        const size = randomBetween(40, 80);
         return {
           x:        randomBetween(0, canvas.width),
-          y:        randomBetween(-120, -size),
+          y:        randomBetween(-140, -size),
           size,
-          speedY:   randomBetween(2.5, 5.5),
-          speedX:   randomBetween(-1.8, 1.8),
+          speedY:   randomBetween(3, 6),
+          speedX:   randomBetween(-2, 2),
           rotation: randomBetween(0, Math.PI * 2),
-          spin:     randomBetween(-0.06, 0.06),
-          opacity:  randomBetween(0.75, 1),
+          spin:     randomBetween(-0.07, 0.07),
+          opacity:  randomBetween(0.8, 1),
         };
       }
 
       function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particles.forEach(p => {
-          p.y        += p.speedY;
-          p.x        += p.speedX;
-          p.rotation += p.spin;
-          ctx.save();
-          ctx.globalAlpha = p.opacity;
-          ctx.translate(p.x + p.size / 2, p.y + p.size / 2);
-          ctx.rotate(p.rotation);
-          ctx.drawImage(img, -p.size / 2, -p.size / 2, p.size, p.size);
-          ctx.restore();
-        });
-        particles = particles.filter(p => p.y < canvas.height + 100);
+        if (imgReady) {
+          particles.forEach(p => {
+            p.y        += p.speedY;
+            p.x        += p.speedX;
+            p.rotation += p.spin;
+            ctx.save();
+            ctx.globalAlpha = p.opacity;
+            ctx.translate(p.x + p.size / 2, p.y + p.size / 2);
+            ctx.rotate(p.rotation);
+            ctx.drawImage(img, -p.size / 2, -p.size / 2, p.size, p.size);
+            ctx.restore();
+          });
+        }
+        particles = particles.filter(p => p.y < canvas.height + 120);
         if (particles.length > 0) {
           animId = requestAnimationFrame(draw);
         } else {
@@ -377,17 +383,25 @@
         }
       }
 
-      window.launchConfetti = function(count = 60, durationMs = 2800) {
-        if (animId) cancelAnimationFrame(animId);
+      window.launchConfetti = function(count = 70, durationMs = 3000) {
+        // If image hasn't loaded yet, wait for it then retry once
+        if (!imgReady) {
+          img.onload = () => { imgReady = true; window.launchConfetti(count, durationMs); };
+          return;
+        }
+        if (animId) { cancelAnimationFrame(animId); animId = null; }
         particles = [];
         const interval = durationMs / count;
         let spawned = 0;
+        // Spawn first batch immediately so something appears right away
+        for (let i = 0; i < 8; i++) particles.push(spawnParticle());
+        spawned = 8;
         const spawner = setInterval(() => {
           particles.push(spawnParticle());
           spawned++;
           if (spawned >= count) clearInterval(spawner);
         }, interval);
-        if (!animId) draw();
+        animId = requestAnimationFrame(draw);
       };
     })();
   </script>

@@ -535,22 +535,27 @@
 
     function handleSearch(q) {
       if (!q) { hideResult(); notFound.classList.remove('show'); renderList(guests, ''); return; }
-      const lower = q.toLowerCase();
-      const matches = guests.filter(g =>
-        g.first.toLowerCase().includes(lower) ||
-        g.last.toLowerCase().includes(lower) ||
-        `${g.first} ${g.last}`.toLowerCase().includes(lower)
-      );
+      const lower = q.toLowerCase().trim();
+      const matches = guests.filter(g => {
+        const full = (g.first + ' ' + g.last).toLowerCase();
+        return g.first.toLowerCase().includes(lower) ||
+               g.last.toLowerCase().includes(lower) ||
+               full.includes(lower);
+      });
+
       renderList(matches, q);
-      if (matches.length === 1) {
-        showResult(matches[0]);
-        notFound.classList.remove('show');
-      } else if (matches.length === 0) {
+
+      if (matches.length === 0) {
         hideResult();
         notFound.classList.add('show');
-      } else {
-        hideResult();
+      } else if (matches.length === 1) {
+        // Exact single match — auto-reveal
         notFound.classList.remove('show');
+        showResult(matches[0]);
+      } else {
+        // Multiple matches — hide reveal, let list guide them
+        notFound.classList.remove('show');
+        hideResult();
       }
     }
 
@@ -626,11 +631,12 @@
           const li = document.createElement('li');
           li.className = 'guest-item';
           li.addEventListener('click', () => {
-            searchInput.value = `${g.first} ${g.last}`;
+            const fullName = g.first + ' ' + g.last;
+            searchInput.value = fullName;
             clearBtn.classList.add('show');
-            showResult(g);
             notFound.classList.remove('show');
-            renderList([g], '');
+            showResult(g);
+            renderList([g], fullName);
             window.scrollTo({ top: 0, behavior: 'smooth' });
           });
           const nameSpan = document.createElement('span');
