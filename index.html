@@ -147,6 +147,75 @@
       transition: opacity 0.6s ease;
     }
 
+    /* ---- Menu tile ---- */
+    .menu-tile {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-decoration: none;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 1.5rem 1.75rem;
+      margin-bottom: 1rem;
+      transition: box-shadow 0.15s, transform 0.1s, border-color 0.15s;
+    }
+
+    .menu-tile:hover {
+      box-shadow: 0 4px 20px rgba(37,61,44,0.1);
+      transform: translateY(-1px);
+      border-color: var(--sage-mid);
+    }
+
+    .menu-tile-eyebrow {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--sage-mid);
+      margin-bottom: 0.35rem;
+    }
+
+    .menu-tile h2 {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 1.6rem;
+      font-weight: 400;
+      color: var(--forest);
+      line-height: 1.1;
+      margin-bottom: 0.3rem;
+    }
+
+    .menu-tile h2 em {
+      font-style: italic;
+      color: var(--sage-deep);
+    }
+
+    .menu-tile p {
+      font-size: 0.825rem;
+      color: var(--text-muted);
+    }
+
+    .menu-tile .tile-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--sage-deep);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: gap 0.2s;
+    }
+
+    .menu-tile:hover .tile-cta { gap: 0.65rem; }
+    .menu-tile .tile-cta::after { content: '→'; }
+
+    .menu-tile-icons {
+      font-size: 2rem;
+      flex-shrink: 0;
+      opacity: 0.6;
+    }
+
     /* ---- Divider ---- */
     .leaf-divider {
       display: flex;
@@ -238,6 +307,17 @@
       <p>Search your name to discover your table number</p>
       <span class="tile-cta">Find my table</span>
       <div class="corner-number" id="cornerNum">7</div>
+    </a>
+
+    <!-- Menu tile -->
+    <a href="menu.html" class="menu-tile">
+      <div class="menu-tile-left">
+        <p class="menu-tile-eyebrow">Tonight</p>
+        <h2>The <em>menu</em></h2>
+        <p>Reception dinner & bar selections</p>
+        <span class="tile-cta">View menu</span>
+      </div>
+      <div class="menu-tile-icons">🍽&nbsp;&nbsp;🍸</div>
     </a>
 
     <div class="leaf-divider"><span>🌿</span></div>

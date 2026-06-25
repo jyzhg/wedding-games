@@ -72,52 +72,7 @@
     }
     .divider span { font-size: 0.9rem; }
 
-    /* ---- Upload zone ---- */
-    .upload-zone {
-      border: 1.5px dashed var(--sage-soft);
-      border-radius: 12px;
-      padding: 1.5rem;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 0.2s, background 0.2s;
-      margin-bottom: 1.25rem;
-      background: var(--surface);
-    }
 
-    .upload-zone:hover, .upload-zone.drag-over {
-      border-color: var(--sage-deep);
-      background: #f0f5ed;
-    }
-
-    .upload-zone input[type="file"] { display: none; }
-
-    .upload-zone .upload-label {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.4rem;
-      cursor: pointer;
-    }
-
-    .upload-zone .upload-icon { font-size: 1.5rem; }
-
-    .upload-zone .upload-text {
-      font-size: 0.875rem;
-      color: var(--text-muted);
-    }
-
-    .upload-zone .upload-text strong { color: var(--sage-deep); }
-
-    .upload-zone .file-loaded {
-      font-size: 0.8rem;
-      color: var(--sage-deep);
-      font-weight: 600;
-      display: none;
-    }
-
-    .upload-zone.loaded .file-loaded { display: block; }
-    .upload-zone.loaded .upload-text,
-    .upload-zone.loaded .upload-icon { display: none; }
 
     /* ---- Search ---- */
     .search-wrap {
@@ -411,15 +366,7 @@
       <p class="sub">Search your name to discover your table</p>
     </div>
 
-    <!-- CSV upload -->
-    <div class="upload-zone" id="uploadZone">
-      <input type="file" id="csvFile" accept=".csv" />
-      <label for="csvFile" class="upload-label">
-        <span class="upload-icon">🌿</span>
-        <span class="upload-text"><strong>Upload your guest list</strong> — drag a CSV here or click to browse</span>
-        <span class="file-loaded" id="fileLoaded">✓ Guest list loaded</span>
-      </label>
-    </div>
+
 
     <!-- Search -->
     <div class="search-wrap">
@@ -466,9 +413,6 @@
   <script>
     let guests = [];
 
-    const uploadZone  = document.getElementById('uploadZone');
-    const csvFile     = document.getElementById('csvFile');
-    const fileLoaded  = document.getElementById('fileLoaded');
     const searchInput = document.getElementById('searchInput');
     const clearBtn    = document.getElementById('clearBtn');
     const resultPanel = document.getElementById('resultPanel');
@@ -478,44 +422,52 @@
     const guestList   = document.getElementById('guestList');
     const petalWrap   = document.getElementById('petalWrap');
 
+    function parseCSVLine(line) {
+      const result = [];
+      let cur = '', inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') { inQuotes = !inQuotes; }
+        else if (ch === ',' && !inQuotes) { result.push(cur.trim()); cur = ''; }
+        else { cur += ch; }
+      }
+      result.push(cur.trim());
+      return result;
+    }
+
     function parseCSV(text) {
-      const lines = text.trim().split(/\r?\n/);
+      const lines = text.trim().split(/\r?\n/).filter(l => l.trim());
       if (lines.length < 2) return [];
-      const header = lines[0].split(',').map(h => h.trim().toLowerCase());
-      const fi = header.findIndex(h => h.includes('first'));
-      const li = header.findIndex(h => h.includes('last'));
-      const ti = header.findIndex(h => h.includes('table'));
+      const header = parseCSVLine(lines[0]).map(h => h.replace(/[\'"]/g, '').trim().toLowerCase());
+      const fi = header.findIndex(h => /first/.test(h));
+      const li = header.findIndex(h => /last/.test(h));
+      const ti = header.findIndex(h => /table/.test(h));
       if (fi === -1 || li === -1 || ti === -1) {
-        alert('CSV must have columns: FirstName, LastName, TableNumber');
+        console.error('CSV columns not found. Got:', header);
         return [];
       }
-      return lines.slice(1).map(line => {
-        const cols = line.split(',').map(c => c.trim());
-        return { first: cols[fi] || '', last: cols[li] || '', table: cols[ti] || '' };
-      }).filter(g => g.first && g.last && g.table);
+      return lines.slice(1)
+        .map(line => {
+          const cols = parseCSVLine(line).map(c => c.replace(/^"|"$/g, '').trim());
+          return { first: cols[fi] || '', last: cols[li] || '', table: cols[ti] || '' };
+        })
+        .filter(g => g.first || g.last);
     }
 
-    function loadCSV(file) {
-      const reader = new FileReader();
-      reader.onload = e => {
-        guests = parseCSV(e.target.result);
-        uploadZone.classList.add('loaded');
-        fileLoaded.textContent = `✓ ${guests.length} guests loaded`;
+    // Auto-load guests.csv from the same folder — no upload needed
+    fetch('guests.csv')
+      .then(r => {
+        if (!r.ok) throw new Error('guests.csv not found');
+        return r.text();
+      })
+      .then(text => {
+        guests = parseCSV(text);
         renderList(guests, '');
-        clearSearch();
-      };
-      reader.readAsText(file);
-    }
-
-    uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
-    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
-    uploadZone.addEventListener('drop', e => {
-      e.preventDefault();
-      uploadZone.classList.remove('drag-over');
-      const file = e.dataTransfer.files[0];
-      if (file) loadCSV(file);
-    });
-    csvFile.addEventListener('change', e => { if (e.target.files[0]) loadCSV(e.target.files[0]); });
+      })
+      .catch(err => {
+        console.error(err);
+        guestList.innerHTML = '<div class="needs-csv">Could not load guests.csv — make sure it is in the same folder.</div>';
+      });
 
     searchInput.addEventListener('input', () => {
       const q = searchInput.value.trim();
