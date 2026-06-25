@@ -16,24 +16,23 @@ const PUZZLES = {
   // ----------------------------------------------------------
   // CONNECTIONS — 16 words grouped into 4 categories
   //   Each group needs: title, color ("yellow","green","blue","purple"), and 4 words
-  //   Tip: "yellow" = easiest, "purple" = hardest
   // ----------------------------------------------------------
   connections: {
     groups: [
       {
-        title: "Things in a kitchen",
+        title: "Things Maomi Eats That He Shouldn't",
         color: "yellow",
-        words: ["WHISK", "LADLE", "TONGS", "GRATER"]
+        words: ["Plastic", "Plants", "Shoes", "Cables"]
       },
       {
-        title: "Types of pasta",
+        title: "Things That Once Gave Jason Heartburn",
         color: "green",
-        words: ["PENNE", "RIGATONI", "FUSILLI", "ORZO"]
+        words: ["Alcohol", "Spicy", "Raw Garlic", "Sour"]
       },
       {
-        title: "___ ball",
+        title: "Jessica's Favorites",
         color: "blue",
-        words: ["BASKET", "FOOT", "CANNON", "SNOW"]
+        words: ["T1", "Napping", "Coffee", "Jason"]
       },
       {
         title: "Shades of blue",

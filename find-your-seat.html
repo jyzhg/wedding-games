@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Find Your Seat · Millwick</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+  <style>
+    body { background: var(--bg); }
+
+    .seat-page {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem;
+    }
+
+    /* ---- Header ---- */
+    .seat-header {
+      text-align: center;
+      margin-bottom: 2.25rem;
+      position: relative;
+    }
+
+    .seat-header .leaf-top {
+      display: block;
+      margin: 0 auto 1rem;
+      opacity: 0.55;
+    }
+
+    .seat-header .eyebrow {
+      font-size: 0.68rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--sage-mid);
+      margin-bottom: 0.6rem;
+    }
+
+    .seat-header h1 {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(2.2rem, 6vw, 3.2rem);
+      font-weight: 400;
+      color: var(--forest);
+      line-height: 1.1;
+      margin-bottom: 0.5rem;
+    }
+
+    .seat-header h1 em {
+      font-style: italic;
+      color: var(--sage-deep);
+    }
+
+    .seat-header .sub {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    /* ---- Divider ---- */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 1.75rem 0;
+      color: var(--border);
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .divider span { font-size: 0.9rem; }
+
+    /* ---- Upload zone ---- */
+    .upload-zone {
+      border: 1.5px dashed var(--sage-soft);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      margin-bottom: 1.25rem;
+      background: var(--surface);
+    }
+
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color: var(--sage-deep);
+      background: #f0f5ed;
+    }
+
+    .upload-zone input[type="file"] { display: none; }
+
+    .upload-zone .upload-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+    }
+
+    .upload-zone .upload-icon { font-size: 1.5rem; }
+
+    .upload-zone .upload-text {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .upload-zone .upload-text strong { color: var(--sage-deep); }
+
+    .upload-zone .file-loaded {
+      font-size: 0.8rem;
+      color: var(--sage-deep);
+      font-weight: 600;
+      display: none;
+    }
+
+    .upload-zone.loaded .file-loaded { display: block; }
+    .upload-zone.loaded .upload-text,
+    .upload-zone.loaded .upload-icon { display: none; }
+
+    /* ---- Search ---- */
+    .search-wrap {
+      position: relative;
+      margin-bottom: 1.25rem;
+    }
+
+    .search-wrap input {
+      width: 100%;
+      padding: 0.9rem 1rem 0.9rem 3rem;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+      font-size: 1rem;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      font-family: inherit;
+    }
+
+    .search-wrap input::placeholder { color: #a0b4a0; }
+
+    .search-wrap input:focus {
+      border-color: var(--sage-deep);
+      box-shadow: 0 0 0 3px rgba(74,124,89,0.12);
+    }
+
+    .search-wrap .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--sage-mid);
+      font-size: 1rem;
+      pointer-events: none;
+    }
+
+    .search-wrap .clear-btn {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--sage-mid);
+      font-size: 0.9rem;
+      padding: 4px;
+      display: none;
+    }
+
+    .search-wrap .clear-btn.show { display: block; }
+
+    /* ---- Result reveal ---- */
+    .result-panel {
+      display: none;
+      text-align: center;
+      margin: 1.5rem 0;
+    }
+
+    .result-panel.show { display: block; }
+
+    .result-card {
+      background: var(--forest);
+      border-radius: 16px;
+      padding: 2rem 1.5rem 2.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Leaf pattern inside result card */
+    .result-card .card-leaves {
+      position: absolute;
+      right: -20px;
+      bottom: -20px;
+      opacity: 0.1;
+      pointer-events: none;
+    }
+
+    /* Gold top rule */
+    .result-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold-warm), transparent);
+    }
+
+    .result-name {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 1.5rem;
+      font-style: italic;
+      color: #b8d8a8;
+      margin-bottom: 0.75rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      position: relative;
+    }
+
+    .result-panel.show .result-name {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .result-table-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold-warm);
+      margin-bottom: 0.35rem;
+      opacity: 0;
+      transition: opacity 0.4s ease 0.2s;
+      position: relative;
+    }
+
+    .result-panel.show .result-table-label { opacity: 1; }
+
+    .table-number {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 6rem;
+      font-weight: 400;
+      color: #e8f0e4;
+      line-height: 1;
+      opacity: 0;
+      transform: scale(0.82);
+      transition: opacity 0.55s ease 0.35s, transform 0.55s cubic-bezier(0.34,1.56,0.64,1) 0.35s;
+      position: relative;
+    }
+
+    .result-panel.show .table-number {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .result-note {
+      font-size: 0.8rem;
+      color: rgba(184,216,168,0.6);
+      margin-top: 0.9rem;
+      opacity: 0;
+      transition: opacity 0.4s ease 0.7s;
+      position: relative;
+    }
+
+    .result-panel.show .result-note { opacity: 1; }
+
+    /* Leaf petals */
+    .petal-wrap {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .petal {
+      position: absolute;
+      width: 6px;
+      height: 10px;
+      border-radius: 50% 50% 50% 0;
+      opacity: 0;
+      animation: none;
+    }
+
+    @keyframes petalFall {
+      0%   { opacity: 0.8; transform: translateY(-10px) rotate(0deg) translateX(0); }
+      100% { opacity: 0;   transform: translateY(130px) rotate(420deg) translateX(var(--drift)); }
+    }
+
+    /* ---- Not found ---- */
+    .not-found {
+      text-align: center;
+      padding: 1.25rem;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      display: none;
+      background: var(--surface);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+    .not-found.show { display: block; }
+
+    /* ---- Guest list ---- */
+    .list-section { margin-top: 2rem; }
+
+    .list-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--sage-mid);
+      margin-bottom: 0.75rem;
+    }
+
+    .guest-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+
+    .guest-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 0.875rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .guest-item:hover { background: #e4ede0; }
+    .guest-item.highlighted { background: #ddecd8; }
+
+    .guest-item .guest-name { font-size: 0.9rem; color: var(--text); }
+
+    .guest-item .guest-name mark {
+      background: #c8e8b0;
+      border-radius: 2px;
+      padding: 0 2px;
+      color: inherit;
+    }
+
+    .guest-item .guest-table {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--sage-deep);
+      background: var(--sage-pale);
+      border: 1px solid var(--sage-soft);
+      padding: 2px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .alpha-group { margin-bottom: 0.5rem; }
+
+    .alpha-letter {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 0.85rem;
+      font-style: italic;
+      color: var(--sage-mid);
+      padding: 0.4rem 0.875rem 0.2rem;
+    }
+
+    .no-guests, .needs-csv {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      color: var(--sage-mid);
+      text-decoration: none;
+      margin-bottom: 2rem;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--sage-deep); }
+
+    @media (max-width: 480px) {
+      .table-number { font-size: 4.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="site-nav">
+    <a href="index.html" class="logo">✦ Millwick Games</a>
+    <ul class="nav-links">
+      <li><a href="find-your-seat.html" class="active">Find Seat</a></li>
+      <li><a href="wordle.html">Wordle</a></li>
+      <li><a href="connections.html">Connections</a></li>
+      <li><a href="crossword.html">Crossword</a></li>
+    </ul>
+  </nav>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <div class="seat-page">
+    <a href="index.html" class="back-link">← Back</a>
+
+    <div class="seat-header">
+      <!-- Small botanical SVG -->
+      <svg class="leaf-top" width="48" height="56" viewBox="0 0 48 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M24 54 C24 54 4 42 4 24 C4 10 13 2 24 2 C35 2 44 10 44 24 C44 42 24 54 24 54Z" fill="#4a7c59"/>
+        <path d="M24 2 L24 54" stroke="#253d2c" stroke-width="1.2"/>
+        <path d="M24 16 C16 14 9 18 6 26" stroke="#253d2c" stroke-width="0.8" stroke-linecap="round"/>
+        <path d="M24 26 C16 23 9 27 6 35" stroke="#253d2c" stroke-width="0.8" stroke-linecap="round"/>
+        <path d="M24 16 C32 14 39 18 42 26" stroke="#253d2c" stroke-width="0.8" stroke-linecap="round"/>
+        <path d="M24 26 C32 23 39 27 42 35" stroke="#253d2c" stroke-width="0.8" stroke-linecap="round"/>
+      </svg>
+      <p class="eyebrow">Millwick · DTLA</p>
+      <h1>Find your <em>seat</em></h1>
+      <p class="sub">Search your name to discover your table</p>
+    </div>
+
+    <!-- CSV upload -->
+    <div class="upload-zone" id="uploadZone">
+      <input type="file" id="csvFile" accept=".csv" />
+      <label for="csvFile" class="upload-label">
+        <span class="upload-icon">🌿</span>
+        <span class="upload-text"><strong>Upload your guest list</strong> — drag a CSV here or click to browse</span>
+        <span class="file-loaded" id="fileLoaded">✓ Guest list loaded</span>
+      </label>
+    </div>
+
+    <!-- Search -->
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search by first or last name…"
+        autocomplete="off" autocorrect="off" spellcheck="false" />
+      <button class="clear-btn" id="clearBtn" aria-label="Clear search">✕</button>
+    </div>
+
+    <!-- Reveal result -->
+    <div class="result-panel" id="resultPanel">
+      <div class="result-card" id="resultCard">
+        <div class="petal-wrap" id="petalWrap"></div>
+        <!-- Background leaf SVG -->
+        <svg class="card-leaves" width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M80 155 C80 155 10 115 10 65 C10 28 42 8 80 8 C118 8 150 28 150 65 C150 115 80 155 80 155Z" fill="#b8d8a8"/>
+          <path d="M80 8 L80 155" stroke="#4a7c59" stroke-width="1.5"/>
+          <path d="M80 40 C58 36 38 46 26 62" stroke="#4a7c59" stroke-width="1" stroke-linecap="round"/>
+          <path d="M80 65 C58 58 38 68 26 84" stroke="#4a7c59" stroke-width="1" stroke-linecap="round"/>
+          <path d="M80 90 C102 83 122 93 134 109" stroke="#4a7c59" stroke-width="1" stroke-linecap="round"/>
+          <path d="M80 40 C102 36 122 46 134 62" stroke="#4a7c59" stroke-width="1" stroke-linecap="round"/>
+        </svg>
+        <div class="result-name" id="resultName"></div>
+        <div class="result-table-label">Your table</div>
+        <div class="table-number" id="tableNumber"></div>
+        <div class="result-note" id="resultNote">Enjoy the celebration 🥂</div>
+      </div>
+    </div>
+
+    <!-- Not found -->
+    <div class="not-found" id="notFound">
+      No guest found — try a different spelling or ask a member of the wedding party.
+    </div>
+
+    <div class="divider"><span>🌿</span></div>
+
+    <!-- Alphabetical list -->
+    <div class="list-section" id="listSection">
+      <p class="list-label">All guests</p>
+      <div id="guestList"></div>
+    </div>
+  </div>
+
+  <script>
+    let guests = [];
+
+    const uploadZone  = document.getElementById('uploadZone');
+    const csvFile     = document.getElementById('csvFile');
+    const fileLoaded  = document.getElementById('fileLoaded');
+    const searchInput = document.getElementById('searchInput');
+    const clearBtn    = document.getElementById('clearBtn');
+    const resultPanel = document.getElementById('resultPanel');
+    const resultName  = document.getElementById('resultName');
+    const tableNumber = document.getElementById('tableNumber');
+    const notFound    = document.getElementById('notFound');
+    const guestList   = document.getElementById('guestList');
+    const petalWrap   = document.getElementById('petalWrap');
+
+    function parseCSV(text) {
+      const lines = text.trim().split(/\r?\n/);
+      if (lines.length < 2) return [];
+      const header = lines[0].split(',').map(h => h.trim().toLowerCase());
+      const fi = header.findIndex(h => h.includes('first'));
+      const li = header.findIndex(h => h.includes('last'));
+      const ti = header.findIndex(h => h.includes('table'));
+      if (fi === -1 || li === -1 || ti === -1) {
+        alert('CSV must have columns: FirstName, LastName, TableNumber');
+        return [];
+      }
+      return lines.slice(1).map(line => {
+        const cols = line.split(',').map(c => c.trim());
+        return { first: cols[fi] || '', last: cols[li] || '', table: cols[ti] || '' };
+      }).filter(g => g.first && g.last && g.table);
+    }
+
+    function loadCSV(file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        guests = parseCSV(e.target.result);
+        uploadZone.classList.add('loaded');
+        fileLoaded.textContent = `✓ ${guests.length} guests loaded`;
+        renderList(guests, '');
+        clearSearch();
+      };
+      reader.readAsText(file);
+    }
+
+    uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+    uploadZone.addEventListener('drop', e => {
+      e.preventDefault();
+      uploadZone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file) loadCSV(file);
+    });
+    csvFile.addEventListener('change', e => { if (e.target.files[0]) loadCSV(e.target.files[0]); });
+
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.trim();
+      clearBtn.classList.toggle('show', q.length > 0);
+      if (!guests.length) return;
+      handleSearch(q);
+    });
+
+    clearBtn.addEventListener('click', clearSearch);
+
+    function clearSearch() {
+      searchInput.value = '';
+      clearBtn.classList.remove('show');
+      hideResult();
+      notFound.classList.remove('show');
+      renderList(guests, '');
+    }
+
+    function handleSearch(q) {
+      if (!q) { hideResult(); notFound.classList.remove('show'); renderList(guests, ''); return; }
+      const lower = q.toLowerCase();
+      const matches = guests.filter(g =>
+        g.first.toLowerCase().includes(lower) ||
+        g.last.toLowerCase().includes(lower) ||
+        `${g.first} ${g.last}`.toLowerCase().includes(lower)
+      );
+      renderList(matches, q);
+      if (matches.length === 1) {
+        showResult(matches[0]);
+        notFound.classList.remove('show');
+      } else if (matches.length === 0) {
+        hideResult();
+        notFound.classList.add('show');
+      } else {
+        hideResult();
+        notFound.classList.remove('show');
+      }
+    }
+
+    let resultTimer = null;
+
+    function showResult(guest) {
+      resultName.textContent = `${guest.first} ${guest.last}`;
+      tableNumber.textContent = guest.table;
+      resultPanel.classList.remove('show');
+      void resultPanel.offsetWidth;
+      resultPanel.classList.add('show');
+      clearTimeout(resultTimer);
+      resultTimer = setTimeout(bloomPetals, 820);
+    }
+
+    function hideResult() {
+      resultPanel.classList.remove('show');
+      clearPetals();
+    }
+
+    function bloomPetals() {
+      petalWrap.innerHTML = '';
+      // Leaf-green and gold petals to match Millwick
+      const colors = ['#8aab7e','#b8d8a8','#c8e8a8','#c8a05a','#d4b870','#e4d0a0'];
+      for (let i = 0; i < 20; i++) {
+        const p = document.createElement('div');
+        p.className = 'petal';
+        const drift = (Math.random() - 0.5) * 90;
+        p.style.cssText = `
+          left: ${15 + Math.random() * 70}%;
+          top: ${5 + Math.random() * 35}%;
+          background: ${colors[Math.floor(Math.random() * colors.length)]};
+          transform: rotate(${Math.random() * 360}deg);
+          --drift: ${drift}px;
+          animation: petalFall ${1.4 + Math.random() * 1.2}s ease-in ${Math.random() * 0.7}s forwards;
+        `;
+        petalWrap.appendChild(p);
+      }
+      setTimeout(clearPetals, 3500);
+    }
+
+    function clearPetals() { petalWrap.innerHTML = ''; }
+
+    function renderList(list, query) {
+      guestList.innerHTML = '';
+      if (!guests.length) {
+        guestList.innerHTML = '<div class="needs-csv">Upload your guest CSV above to see the full list</div>';
+        return;
+      }
+      if (!list.length) {
+        guestList.innerHTML = '<div class="no-guests">No matching guests</div>';
+        return;
+      }
+      const sorted = [...list].sort((a, b) => a.last.localeCompare(b.last) || a.first.localeCompare(b.first));
+      const groups = {};
+      sorted.forEach(g => {
+        const letter = g.last[0].toUpperCase();
+        if (!groups[letter]) groups[letter] = [];
+        groups[letter].push(g);
+      });
+
+      Object.keys(groups).sort().forEach(letter => {
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'alpha-group';
+        const letterEl = document.createElement('div');
+        letterEl.className = 'alpha-letter';
+        letterEl.textContent = letter;
+        groupDiv.appendChild(letterEl);
+
+        const ul = document.createElement('ul');
+        ul.className = 'guest-list';
+        groups[letter].forEach(g => {
+          const li = document.createElement('li');
+          li.className = 'guest-item';
+          li.addEventListener('click', () => {
+            searchInput.value = `${g.first} ${g.last}`;
+            clearBtn.classList.add('show');
+            showResult(g);
+            notFound.classList.remove('show');
+            renderList([g], '');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
+          const nameSpan = document.createElement('span');
+          nameSpan.className = 'guest-name';
+          const fullName = `${g.first} ${g.last}`;
+          nameSpan.innerHTML = query ? highlightMatch(fullName, query) : fullName;
+          const tableSpan = document.createElement('span');
+          tableSpan.className = 'guest-table';
+          tableSpan.textContent = `Table ${g.table}`;
+          li.appendChild(nameSpan);
+          li.appendChild(tableSpan);
+          ul.appendChild(li);
+        });
+        groupDiv.appendChild(ul);
+        guestList.appendChild(groupDiv);
+      });
+    }
+
+    function highlightMatch(text, query) {
+      const idx = text.toLowerCase().indexOf(query.toLowerCase());
+      if (idx === -1) return text;
+      return text.slice(0, idx) + '<mark>' + text.slice(idx, idx + query.length) + '</mark>' + text.slice(idx + query.length);
+    }
+
+    renderList([], '');
+  </script>
+</body>
+</html>

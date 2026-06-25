@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Connections – Mini Games</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
   <style>
     .instructions {
       color: var(--text-muted);
@@ -58,7 +60,7 @@
     }
 
     .word-btn:hover { border-color: #888; }
-    .word-btn.selected { background: #5a594f; color: #fff; border-color: #5a594f; }
+    .word-btn.selected { background: var(--forest, #253d2c); color: #e8f0e4; border-color: var(--forest, #253d2c); }
     .word-btn.shake { animation: shake 0.4s ease; }
 
     @keyframes shake {
@@ -91,10 +93,10 @@
       opacity: 0.9;
     }
 
-    .color-yellow { background: #f9df6d; color: #4a3d00; }
-    .color-green  { background: #a0c35a; color: #1a3300; }
-    .color-blue   { background: #b0c4ef; color: #0c2060; }
-    .color-purple { background: #ba81c5; color: #2d0040; }
+    .color-yellow { background: #e8d878; color: #3a3000; }
+    .color-green  { background: #7aad5e; color: #122400; }
+    .color-blue   { background: #8aab7e; color: #182a1e; }
+    .color-purple { background: #4a7c59; color: #e8f0e4; }
 
     .actions {
       display: flex;
@@ -122,8 +124,9 @@
 </head>
 <body>
   <nav class="site-nav">
-    <a href="index.html" class="logo">🎮 Mini Games</a>
+    <a href="index.html" class="logo">✦ Millwick Games</a>
     <ul class="nav-links">
+      <li><a href="find-your-seat.html">Find Seat</a></li>
       <li><a href="wordle.html">Wordle</a></li>
       <li><a href="connections.html" class="active">Connections</a></li>
       <li><a href="crossword.html">Crossword</a></li>

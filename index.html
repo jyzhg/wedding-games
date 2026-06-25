@@ -5,34 +5,182 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mini Games</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
   <style>
+    /* ---- Hero ---- */
     .hero {
-      padding: 2.5rem 0 1.5rem;
+      padding: 2.5rem 0 1.75rem;
+      position: relative;
     }
+
+    .hero-eyebrow {
+      font-size: 0.68rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--sage-mid);
+      margin-bottom: 0.5rem;
+    }
+
     .hero h1 {
-      font-size: 2rem;
-      font-weight: 800;
-      letter-spacing: -0.04em;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(2rem, 5vw, 2.6rem);
+      font-weight: 400;
+      color: var(--forest);
+      line-height: 1.1;
       margin-bottom: 0.4rem;
     }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--sage-deep);
+    }
+
     .hero p {
       color: var(--text-muted);
-      font-size: 0.95rem;
+      font-size: 0.9rem;
     }
-    .section-label {
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
+
+    /* ---- Leaf SVG watermark ---- */
+    .leaf-watermark {
+      position: absolute;
+      right: -1rem;
+      top: 1rem;
+      opacity: 0.12;
+      pointer-events: none;
+    }
+
+    /* ---- Find Your Seat tile ---- */
+    .seat-tile {
+      display: block;
+      text-decoration: none;
+      border-radius: 18px;
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 2rem;
+      background: var(--forest);
+      min-height: 196px;
+      padding: 2rem 2rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .seat-tile:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 40px rgba(24,42,30,0.25);
+    }
+
+    /* Botanical leaf pattern in background */
+    .seat-tile .tile-leaves {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 55%;
+      opacity: 0.13;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .seat-tile-eyebrow {
+      font-size: 0.65rem;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 0.75rem;
+      color: var(--gold-warm);
+      margin-bottom: 0.6rem;
+      position: relative;
+    }
+
+    .seat-tile h2 {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(2rem, 5vw, 2.7rem);
+      font-weight: 400;
+      color: #e8f0e4;
+      line-height: 1.1;
+      margin-bottom: 0.5rem;
+      position: relative;
+    }
+
+    .seat-tile h2 em {
+      font-style: italic;
+      color: #b8d8a8;
+    }
+
+    .seat-tile p {
+      font-size: 0.85rem;
+      color: rgba(200,220,196,0.7);
+      max-width: 26ch;
+      position: relative;
+    }
+
+    .seat-tile .tile-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 1.25rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--gold-warm);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      position: relative;
+      transition: gap 0.2s;
+    }
+
+    .seat-tile:hover .tile-cta { gap: 0.65rem; }
+
+    .seat-tile .tile-cta::after { content: '→'; }
+
+    /* Cycling table number */
+    .corner-number {
+      position: absolute;
+      right: 1.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 7rem;
+      font-weight: 400;
+      color: rgba(140,200,120,0.15);
+      line-height: 1;
+      user-select: none;
+      transition: opacity 0.6s ease;
+    }
+
+    /* ---- Divider ---- */
+    .leaf-divider {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      color: var(--sage-mid);
+    }
+
+    .leaf-divider::before,
+    .leaf-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .leaf-divider span {
+      font-size: 0.85rem;
+      opacity: 0.7;
+    }
+
+    @media (max-width: 480px) {
+      .seat-tile { padding: 1.5rem 1.25rem; min-height: 168px; }
+      .corner-number { font-size: 5rem; right: 1rem; }
+      .leaf-watermark { display: none; }
     }
   </style>
 </head>
 <body>
   <nav class="site-nav">
-    <a href="index.html" class="logo">🎮 Mini Games</a>
+    <a href="index.html" class="logo">✦ Millwick Games</a>
     <ul class="nav-links">
+      <li><a href="find-your-seat.html">Find Seat</a></li>
       <li><a href="wordle.html">Wordle</a></li>
       <li><a href="connections.html">Connections</a></li>
       <li><a href="crossword.html">Crossword</a></li>
@@ -41,10 +189,57 @@
 
   <div class="page-wrapper">
     <div class="hero">
-      <h1>Today's Games</h1>
-      <p>Three puzzles, curated fresh. Pick your challenge.</p>
+      <!-- Botanical leaf watermark SVG -->
+      <svg class="leaf-watermark" width="180" height="220" viewBox="0 0 180 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M90 210 C90 210 20 160 20 90 C20 40 55 10 90 10 C125 10 160 40 160 90 C160 160 90 210 90 210Z" fill="#4a7c59"/>
+        <path d="M90 10 L90 210" stroke="#253d2c" stroke-width="1.5"/>
+        <path d="M90 60 C70 55 50 65 40 80" stroke="#253d2c" stroke-width="1" stroke-linecap="round"/>
+        <path d="M90 80 C75 72 58 78 48 92" stroke="#253d2c" stroke-width="1" stroke-linecap="round"/>
+        <path d="M90 100 C72 92 56 98 46 112" stroke="#253d2c" stroke-width="1" stroke-linecap="round"/>
+        <path d="M90 120 C108 112 126 120 136 135" stroke="#253d2c" stroke-width="1" stroke-linecap="round"/>
+        <path d="M90 80 C105 72 122 78 132 92" stroke="#253d2c" stroke-width="1" stroke-linecap="round"/>
+        <path d="M90 60 C110 55 130 65 140 80" stroke="#253d2c" stroke-width="1" stroke-linecap="round"/>
+        <!-- second smaller leaf -->
+        <path d="M148 185 C148 185 112 162 112 130 C112 108 130 96 148 96 C166 96 184 108 184 130 C184 162 148 185 148 185Z" fill="#4a7c59" opacity="0.6"/>
+        <path d="M148 96 L148 185" stroke="#253d2c" stroke-width="1"/>
+        <!-- third leaf -->
+        <path d="M30 175 C30 175 8 155 8 132 C8 115 18 106 30 106 C42 106 52 115 52 132 C52 155 30 175 30 175Z" fill="#4a7c59" opacity="0.5"/>
+        <path d="M30 106 L30 175" stroke="#253d2c" stroke-width="1"/>
+      </svg>
+
+      <p class="hero-eyebrow">Millwick · DTLA</p>
+      <h1>Today's <em>games</em></h1>
+      <p>Find your table, then play a puzzle while you wait.</p>
     </div>
 
+    <!-- Find Your Seat -->
+    <a href="find-your-seat.html" class="seat-tile">
+      <!-- Large botanical SVG in background -->
+      <div class="tile-leaves">
+        <svg width="300" height="280" viewBox="0 0 300 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M150 270 C150 270 30 200 30 110 C30 45 88 8 150 8 C212 8 270 45 270 110 C270 200 150 270 150 270Z" fill="#b8d8a8"/>
+          <path d="M150 8 L150 270" stroke="#4a7c59" stroke-width="2"/>
+          <path d="M150 60 C118 54 88 68 70 90" stroke="#4a7c59" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M150 90 C122 80 94 90 76 112" stroke="#4a7c59" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M150 120 C120 108 92 118 74 140" stroke="#4a7c59" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M150 150 C178 138 208 150 226 172" stroke="#4a7c59" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M150 90 C178 80 206 90 224 112" stroke="#4a7c59" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M150 60 C182 54 212 68 230 90" stroke="#4a7c59" stroke-width="1.5" stroke-linecap="round"/>
+          <ellipse cx="70" cy="220" rx="40" ry="52" fill="#8ab890" transform="rotate(-25 70 220)" opacity="0.8"/>
+          <path d="M70 168 L70 272" stroke="#4a7c59" stroke-width="1.2" transform="rotate(-25 70 220)"/>
+          <ellipse cx="232" cy="215" rx="30" ry="45" fill="#8ab890" transform="rotate(20 232 215)" opacity="0.7"/>
+          <path d="M232 170 L232 260" stroke="#4a7c59" stroke-width="1.2" transform="rotate(20 232 215)"/>
+        </svg>
+      </div>
+
+      <p class="seat-tile-eyebrow">Wedding day</p>
+      <h2>Find your <em>seat</em></h2>
+      <p>Search your name to discover your table number</p>
+      <span class="tile-cta">Find my table</span>
+      <div class="corner-number" id="cornerNum">7</div>
+    </a>
+
+    <div class="leaf-divider"><span>🌿</span></div>
     <p class="section-label">Play now</p>
 
     <div class="game-grid">
@@ -73,5 +268,19 @@
       </a>
     </div>
   </div>
+
+  <script>
+    const nums = [3, 7, 12, 5, 1, 9, 4, 8, 2, 6];
+    let ni = 0;
+    const el = document.getElementById('cornerNum');
+    setInterval(() => {
+      el.style.opacity = '0';
+      setTimeout(() => {
+        ni = (ni + 1) % nums.length;
+        el.textContent = nums[ni];
+        el.style.opacity = '1';
+      }, 400);
+    }, 3200);
+  </script>
 </body>
 </html>
