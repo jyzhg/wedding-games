@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Menu · Millwick</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+  <style>
+    .menu-page {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem;
+    }
+
+    /* ---- Header ---- */
+    .menu-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .menu-header .eyebrow {
+      font-size: 0.68rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--sage-mid);
+      margin-bottom: 0.6rem;
+    }
+
+    .menu-header h1 {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(2.2rem, 6vw, 3rem);
+      font-weight: 400;
+      color: var(--forest);
+      line-height: 1.1;
+      margin-bottom: 0.4rem;
+    }
+
+    .menu-header h1 em {
+      font-style: italic;
+      color: var(--sage-deep);
+    }
+
+    .menu-header .sub {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    /* ---- Tabs ---- */
+    .tab-bar {
+      display: flex;
+      gap: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 2rem;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 0.65rem 1rem;
+      border: none;
+      background: transparent;
+      border-radius: 9px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+      font-family: inherit;
+      letter-spacing: 0.01em;
+    }
+
+    .tab-btn:hover { color: var(--text); }
+
+    .tab-btn.active {
+      background: var(--forest);
+      color: #e8f0e4;
+    }
+
+    /* ---- Tab panels ---- */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ---- Menu sections ---- */
+    .menu-section {
+      margin-bottom: 2.25rem;
+    }
+
+    .menu-section-title {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 500;
+      font-style: italic;
+      color: var(--forest);
+      margin-bottom: 0.25rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .menu-section-note {
+      font-size: 0.75rem;
+      color: var(--sage-mid);
+      margin-bottom: 1rem;
+      letter-spacing: 0.03em;
+    }
+
+    /* ---- Menu items ---- */
+    .menu-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #eef2ec;
+    }
+
+    .menu-item:last-child { border-bottom: none; }
+
+    .menu-item-left { flex: 1; }
+
+    .menu-item-name {
+      font-size: 0.925rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.2rem;
+    }
+
+    .menu-item-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .menu-item-tag {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .tag-veg  { background: #d8edd8; color: #2e5a38; }
+    .tag-gf   { background: #e8e4d8; color: #5a4a20; }
+    .tag-sig  { background: #f5ead8; color: #8b5a20; }
+    .tag-na   { background: var(--sage-pale); color: var(--sage-deep); }
+
+    /* ---- Divider ---- */
+    .menu-divider {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 0.5rem 0 1.5rem;
+      color: var(--border);
+    }
+    .menu-divider::before,
+    .menu-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .menu-divider span { font-size: 0.75rem; color: var(--sage-mid); }
+
+    /* ---- Chef note ---- */
+    .chef-note {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--sage-deep);
+      border-radius: 0 10px 10px 0;
+      padding: 0.875rem 1rem;
+      font-size: 0.825rem;
+      color: var(--text-muted);
+      font-style: italic;
+      margin-bottom: 2rem;
+      line-height: 1.5;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      color: var(--sage-mid);
+      text-decoration: none;
+      margin-bottom: 2rem;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--sage-deep); }
+  </style>
+</head>
+<body>
+  <nav class="site-nav">
+    <a href="index.html" class="logo">✦ Millwick Games</a>
+    <ul class="nav-links">
+      <li><a href="find-your-seat.html">Find Seat</a></li>
+      <li><a href="menu.html" class="active">Menu</a></li>
+      <li><a href="wordle.html">Wordle</a></li>
+      <li><a href="connections.html">Connections</a></li>
+      <li><a href="crossword.html">Crossword</a></li>
+    </ul>
+  </nav>
+
+  <div class="menu-page">
+    <a href="index.html" class="back-link">← Back</a>
+
+    <div class="menu-header">
+      <p class="eyebrow">Millwick · DTLA</p>
+      <h1>Tonight's <em>menu</em></h1>
+      <p class="sub">Curated with love for your celebration</p>
+    </div>
+
+    <!-- Tab bar -->
+    <div class="tab-bar" role="tablist">
+      <button class="tab-btn active" role="tab" aria-selected="true"  onclick="switchTab('reception', this)">🍽 Reception</button>
+      <button class="tab-btn"        role="tab" aria-selected="false" onclick="switchTab('bar', this)">🍸 Bar</button>
+    </div>
+
+    <!-- ===================== RECEPTION MENU ===================== -->
+    <div class="tab-panel active" id="panel-reception">
+
+      <div class="chef-note">
+        All dishes are prepared with locally sourced, seasonal ingredients. Please inform your server of any dietary restrictions.
+      </div>
+
+      <!-- Passed Appetizers -->
+      <div class="menu-section">
+        <div class="menu-section-title">Passed Appetizers</div>
+        <div class="menu-section-note">Served during cocktail hour</div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Burrata Crostini</div>
+            <div class="menu-item-desc">Whipped burrata, heirloom tomato, fresh basil, aged balsamic drizzle</div>
+          </div>
+          <span class="menu-item-tag tag-veg">Veg</span>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Seared Ahi Tuna</div>
+            <div class="menu-item-desc">Sesame-crusted tuna, avocado mousse, pickled daikon, wonton crisp</div>
+          </div>
+          <span class="menu-item-tag tag-gf">GF</span>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Wild Mushroom Arancini</div>
+            <div class="menu-item-desc">Truffle risotto balls, parmesan, roasted garlic aioli</div>
+          </div>
+          <span class="menu-item-tag tag-veg">Veg</span>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Prosciutto & Fig</div>
+            <div class="menu-item-desc">San Daniele prosciutto, mission fig jam, gorgonzola, endive</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="menu-divider"><span>✦</span></div>
+
+      <!-- First Course -->
+      <div class="menu-section">
+        <div class="menu-section-title">First Course</div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Garden Salad</div>
+            <div class="menu-item-desc">Little gem lettuces, shaved radish, cucumber, champagne vinaigrette, herbed croutons</div>
+          </div>
+          <span class="menu-item-tag tag-veg">Veg</span>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">French Onion Soup</div>
+            <div class="menu-item-desc">Slow-caramelized onion, beef consommé, gruyère crouton</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="menu-divider"><span>✦</span></div>
+
+      <!-- Mains -->
+      <div class="menu-section">
+        <div class="menu-section-title">Main Course</div>
+        <div class="menu-section-note">Please select one</div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Herb-Crusted Filet Mignon</div>
+            <div class="menu-item-desc">8oz prime beef tenderloin, truffle jus, roasted fingerling potatoes, broccolini</div>
+          </div>
+          <span class="menu-item-tag tag-gf">GF</span>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Pan-Seared Halibut</div>
+            <div class="menu-item-desc">Pacific halibut, lemon beurre blanc, saffron risotto, asparagus tips</div>
+          </div>
+          <span class="menu-item-tag tag-gf">GF</span>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Roasted Cauliflower Steak</div>
+            <div class="menu-item-desc">Whole roasted cauliflower, harissa, whipped chickpea, pomegranate gremolata</div>
+          </div>
+          <span class="menu-item-tag tag-veg">Veg</span>
+        </div>
+      </div>
+
+      <div class="menu-divider"><span>✦</span></div>
+
+      <!-- Dessert -->
+      <div class="menu-section">
+        <div class="menu-section-title">Dessert</div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Wedding Cake</div>
+            <div class="menu-item-desc">Vanilla chiffon, lemon curd, fresh cream, seasonal berries</div>
+          </div>
+          <span class="menu-item-tag tag-veg">Veg</span>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Petit Fours</div>
+            <div class="menu-item-desc">Lavender macarons, chocolate truffles, candied citrus peel</div>
+          </div>
+          <span class="menu-item-tag tag-veg">Veg</span>
+        </div>
+      </div>
+
+    </div><!-- /reception panel -->
+
+    <!-- ===================== BAR MENU ===================== -->
+    <div class="tab-panel" id="panel-bar">
+
+      <div class="chef-note">
+        All cocktails crafted with house-made syrups and fresh-squeezed juices. Ask your bartender about spirit-free alternatives for any cocktail.
+      </div>
+
+      <!-- Signature Cocktails -->
+      <div class="menu-section">
+        <div class="menu-section-title">Signature Cocktails</div>
+        <div class="menu-section-note">Created exclusively for tonight</div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">The Garden Vow</div>
+            <div class="menu-item-desc">Hendricks gin, elderflower liqueur, cucumber, fresh lime, prosecco float</div>
+          </div>
+          <span class="menu-item-tag tag-sig">Signature</span>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Millwick Mule</div>
+            <div class="menu-item-desc">Tito's vodka, house-made ginger syrup, lime, fresh mint, fever-tree ginger beer</div>
+          </div>
+          <span class="menu-item-tag tag-sig">Signature</span>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Sage & Honey Sour</div>
+            <div class="menu-item-desc">Bourbon, sage-infused honey syrup, lemon juice, egg white foam</div>
+          </div>
+          <span class="menu-item-tag tag-sig">Signature</span>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Sunset Spritz</div>
+            <div class="menu-item-desc">Aperol, blood orange juice, prosecco, soda water, orange twist</div>
+          </div>
+          <span class="menu-item-tag tag-sig">Signature</span>
+        </div>
+      </div>
+
+      <div class="menu-divider"><span>✦</span></div>
+
+      <!-- Wine & Bubbles -->
+      <div class="menu-section">
+        <div class="menu-section-title">Wine & Bubbles</div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Champagne Toast</div>
+            <div class="menu-item-desc">Moët & Chandon Impérial Brut, France</div>
+          </div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Sauvignon Blanc</div>
+            <div class="menu-item-desc">Cloudy Bay, Marlborough, New Zealand</div>
+          </div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Chardonnay</div>
+            <div class="menu-item-desc">Rombauer, Carneros, California</div>
+          </div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Pinot Noir</div>
+            <div class="menu-item-desc">Belle Glos, Santa Barbara, California</div>
+          </div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Cabernet Sauvignon</div>
+            <div class="menu-item-desc">Jordan, Alexander Valley, Sonoma</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="menu-divider"><span>✦</span></div>
+
+      <!-- Beer -->
+      <div class="menu-section">
+        <div class="menu-section-title">Beer</div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Golden Road Mango Cart</div>
+            <div class="menu-item-desc">Wheat ale, Los Angeles</div>
+          </div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Modelo Especial</div>
+            <div class="menu-item-desc">Mexican lager</div>
+          </div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Lagunitas IPA</div>
+            <div class="menu-item-desc">India pale ale, Petaluma CA</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="menu-divider"><span>✦</span></div>
+
+      <!-- Non-Alcoholic -->
+      <div class="menu-section">
+        <div class="menu-section-title">Non-Alcoholic</div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Garden Mocktail</div>
+            <div class="menu-item-desc">Seedlip Garden 108, elderflower, cucumber, fresh lime, soda</div>
+          </div>
+          <span class="menu-item-tag tag-na">N/A</span>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Sparkling Lemonade</div>
+            <div class="menu-item-desc">House-squeezed lemon, lavender syrup, soda water</div>
+          </div>
+          <span class="menu-item-tag tag-na">N/A</span>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Still & Sparkling Water</div>
+            <div class="menu-item-desc">Acqua Panna, San Pellegrino</div>
+          </div>
+          <span class="menu-item-tag tag-na">N/A</span>
+        </div>
+      </div>
+
+    </div><!-- /bar panel -->
+  </div>
+
+  <script>
+    function switchTab(name, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      document.getElementById('panel-' + name).classList.add('active');
+    }
+  </script>
+</body>
+</html>
