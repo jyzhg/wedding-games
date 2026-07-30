@@ -14,7 +14,6 @@
       padding: 2.5rem 1.5rem 5rem;
     }
 
-    /* ---- Header ---- */
     .menu-header {
       text-align: center;
       margin-bottom: 2rem;
@@ -47,7 +46,6 @@
       color: var(--text-muted);
     }
 
-    /* ---- Tabs ---- */
     .tab-bar {
       display: flex;
       gap: 0;
@@ -80,11 +78,9 @@
       color: #e8f0e4;
     }
 
-    /* ---- Tab panels ---- */
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 
-    /* ---- Menu sections ---- */
     .menu-section {
       margin-bottom: 2.25rem;
     }
@@ -107,7 +103,6 @@
       letter-spacing: 0.03em;
     }
 
-    /* ---- Menu items ---- */
     .menu-item {
       display: flex;
       justify-content: space-between;
@@ -150,7 +145,12 @@
     .tag-sig  { background: #f5ead8; color: #8b5a20; }
     .tag-na   { background: var(--sage-pale); color: var(--sage-deep); }
 
-    /* ---- Divider ---- */
+    .sub-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0.5rem 0;
+    }
+
     .menu-divider {
       display: flex;
       align-items: center;
@@ -167,7 +167,6 @@
     }
     .menu-divider span { font-size: 0.75rem; color: var(--sage-mid); }
 
-    /* ---- Chef note ---- */
     .chef-note {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -215,20 +214,18 @@
       <p class="sub">Curated with love for your celebration</p>
     </div>
 
-    <!-- Tab bar -->
     <div class="tab-bar" role="tablist">
-      <button class="tab-btn active" role="tab" aria-selected="true"  onclick="switchTab('reception', this)">🍽 Reception</button>
-      <button class="tab-btn"        role="tab" aria-selected="false" onclick="switchTab('bar', this)">🍸 Bar</button>
+      <button class="tab-btn active" role="tab" aria-selected="true" onclick="switchTab('reception', this)">🍽 Reception</button>
+      <button class="tab-btn" role="tab" aria-selected="false" onclick="switchTab('bar', this)">🍸 Bar</button>
     </div>
 
     <!-- ===================== RECEPTION MENU ===================== -->
     <div class="tab-panel active" id="panel-reception">
 
       <div class="chef-note">
-        Family style service with passed hors d'oeuvres. Catered by L.A. Roots. 
+        Family style service with passed hors d'oeuvres. Catered by L.A. Roots.
       </div>
 
-      <!-- Hors d'Oeuvres -->
       <div class="menu-section">
         <div class="menu-section-title">Hors d'Oeuvres</div>
         <div class="menu-section-note">Passed · Cocktail Hour</div>
@@ -265,10 +262,8 @@
 
       <div class="menu-divider"><span>✦</span></div>
 
-      <!-- Greens -->
       <div class="menu-section">
-        <div class="menu-section-title">Greens</div>
-        <div class="menu-section-note">First Course</div>
+        <div class="menu-section-title">First Course</div>
 
         <div class="menu-item">
           <div class="menu-item-left">
@@ -281,7 +276,6 @@
 
       <div class="menu-divider"><span>✦</span></div>
 
-      <!-- Mains -->
       <div class="menu-section">
         <div class="menu-section-title">Mains</div>
 
@@ -302,7 +296,6 @@
 
       <div class="menu-divider"><span>✦</span></div>
 
-      <!-- Accompaniments -->
       <div class="menu-section">
         <div class="menu-section-title">Sides</div>
 
@@ -333,14 +326,13 @@
 
       <div class="menu-divider"><span>✦</span></div>
 
-      <!-- Late Night -->
       <div class="menu-section">
         <div class="menu-section-title">Dessert</div>
 
         <div class="menu-item">
           <div class="menu-item-left">
             <div class="menu-item-name">Chocolate Chip Cookies</div>
-            <div class="menu-item-desc">Fresh baked, served warm</div>
+            <div class="menu-item-desc">Served warm</div>
           </div>
           <span class="menu-item-tag tag-veg">Veg</span>
         </div>
@@ -352,12 +344,12 @@
     <div class="tab-panel" id="panel-bar">
 
       <div class="chef-note">
-        Full bar service provided by Black Lab by L.A. Roots.
+        Full bar service provided by Black Lab by L.A. Roots. All cocktails available with or without spirits.
       </div>
-       <!-- Welcome Beverage -->
+
       <div class="menu-section">
         <div class="menu-section-title">Welcome Beverage</div>
-        <div class="menu-section-note">Self Serve at the bar</div>
+        <div class="menu-section-note">Self serve at the bar</div>
 
         <div class="menu-item">
           <div class="menu-item-left">
@@ -367,17 +359,18 @@
         </div>
       </div>
 
-      <!-- Signature Cocktails -->
+      <div class="menu-divider"><span>✦</span></div>
+
       <div class="menu-section">
         <div class="menu-section-title">Signature Cocktails</div>
-        <div class="menu-section-note">Created exclusively for tonight</div>
+        <div class="menu-section-note">We hope you enjoy these as much as we do!</div>
 
         <div class="menu-item">
           <div class="menu-item-left">
             <div class="menu-item-name">Mantra of Ionia</div>
             <div class="menu-item-desc">Homemade Thai coconut cream, basil, vanilla extract, pineapple juice, fresh lime — garnished with a pineapple leaf</div>
           </div>
-          <span class="menu-item-tag tag-sig">Signature</span>
+          <span class="menu-item-tag tag-sig">Tropical, Creamy</span>
         </div>
 
         <div class="menu-item">
@@ -385,7 +378,15 @@
             <div class="menu-item-name">Midnight Lush</div>
             <div class="menu-item-desc">Fresh lemon, blackberry, concord grape, lavender — garnished with lavender wands &amp; a lemon slice</div>
           </div>
-          <span class="menu-item-tag tag-sig">Signature</span>
+          <span class="menu-item-tag tag-sig">Bold, Floral</span>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Pom Mint Mule</div>
+            <div class="menu-item-desc">Fresh lime, pomegranate, ginger, mint, club soda</div>
+          </div>
+          <span class="menu-item-tag tag-sig">Bright, Spicy</span>
         </div>
 
         <div class="menu-item">
@@ -393,12 +394,43 @@
             <div class="menu-item-name">Pear Sage Mule</div>
             <div class="menu-item-desc">Fresh lime, pear, ginger, sage, splash of club soda — garnished with pear &amp; sage</div>
           </div>
-          <span class="menu-item-tag tag-sig">Signature</span>
+          <span class="menu-item-tag tag-sig">Crisp, Aromatic</span>
         </div>
       </div>
 
       <div class="menu-divider"><span>✦</span></div>
 
+      <div class="menu-section">
+        <div class="menu-section-title">Beer &amp; Wine</div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Heineken</div>
+          </div>
+          <span class="menu-item-tag tag-veg">Beer</span>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">Other Beer</div>
+          </div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">More Beer</div>
+          </div>
+        </div>
+
+        <div class="sub-divider"></div>
+
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-name">La Fantasia</div>
+            <div class="menu-item-desc">Jessica's favorite wine, because it doesn't taste like wine.</div>
+          </div>
+        </div>
+      </div>
 
     </div><!-- /bar panel -->
   </div>
