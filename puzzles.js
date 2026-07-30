@@ -1,16 +1,21 @@
 // ============================================================
 //  PUZZLES.JS — Edit this file to change all your puzzles!
-//  Each section controls one game. Save and re-upload to GitHub.
+//  Each section controls one game. 
 // ============================================================
 
 const PUZZLES = {
 
   // ----------------------------------------------------------
-  // WORDLE — Set a 5-letter word and its clue (shown at top)
+  // WORDLE — Add as many {word, clue} pairs as you like.
+  //   One is chosen randomly each time the page loads.
+  //   All words must be exactly 5 letters.
+  // ----------------------------------------------------------
+  // ----------------------------------------------------------
+  // WORDLE — Add as many words as you like (must be 5 letters).
+  //   One is chosen randomly each time the page loads.
   // ----------------------------------------------------------
   wordle: {
-    word: "CRANE",
-    clue: "A large bird, or a machine for lifting heavy objects"
+    words: ["Faker"]
   },
 
   // ----------------------------------------------------------
@@ -21,24 +26,24 @@ const PUZZLES = {
   connections: {
     groups: [
       {
-        title: "Things in a kitchen",
+        title: "Things that ONCE gave Jason hearburn",
         color: "yellow",
-        words: ["WHISK", "LADLE", "TONGS", "GRATER"]
+        words: ["ALCOHOL", "SPICES", "ACIDS", "COFFEE"]
       },
       {
-        title: "Types of pasta",
+        title: "Maomi's wants-to-eats-but-cannot eats",
         color: "green",
-        words: ["PENNE", "RIGATONI", "FUSILLI", "ORZO"]
+        words: ["PLASTIC", "PLANTS", "SHOES", ""]
       },
       {
-        title: "___ ball",
+        title: "Cities we've traveled together",
         color: "blue",
-        words: ["BASKET", "FOOT", "CANNON", "SNOW"]
+        words: ["AMSTERDAM", "OSAKA", "TORONTO", "SHANGHAI"]
       },
       {
-        title: "Shades of blue",
+        title: "Jessica's Favorites",
         color: "purple",
-        words: ["COBALT", "CERULEAN", "AZURE", "INDIGO"]
+        words: ["T1", "JASON", "NAPS", "SQUIRRELS"]
       }
     ]
   },
