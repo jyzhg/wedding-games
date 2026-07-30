@@ -12,7 +12,7 @@
     .menu-page {
       max-width: 600px;
       margin: 0 auto;
-      padding: 1.25rem 1rem 4rem;
+      padding: 2.5rem 1.5rem 5rem;
     }
 
     .menu-header {
@@ -197,7 +197,7 @@
 <body>
     <nav class="site-nav">
     <a href="index.html" class="logo">✦ Jessica &amp; Jason</a>
-    <button class="nav-toggle" id="navToggle" aria-label="Menu">
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu">
       <span></span><span></span><span></span>
     </button>
     <ul class="nav-links" id="navLinks">
@@ -209,17 +209,21 @@
     </ul>
   </nav>
   <script>
-    document.getElementById('navToggle').addEventListener('click', function() {
-      this.classList.toggle('open');
-      document.getElementById('navLinks').classList.toggle('open');
-    });
-    // Close nav when a link is tapped
-    document.querySelectorAll('.nav-links a').forEach(a => {
-      a.addEventListener('click', () => {
-        document.getElementById('navToggle').classList.remove('open');
-        document.getElementById('navLinks').classList.remove('open');
+    (function() {
+      var toggle = document.getElementById('navToggle');
+      var links  = document.getElementById('navLinks');
+      if (!toggle) return;
+      toggle.addEventListener('click', function() {
+        toggle.classList.toggle('open');
+        links.classList.toggle('open');
       });
-    });
+      links.querySelectorAll('a').forEach(function(a) {
+        a.addEventListener('click', function() {
+          toggle.classList.remove('open');
+          links.classList.remove('open');
+        });
+      });
+    })();
   </script>
 
   <div class="menu-page">

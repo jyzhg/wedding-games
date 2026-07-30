@@ -240,19 +240,16 @@
     }
 
     @media (max-width: 480px) {
-      .seat-tile { padding: 1.25rem 1rem; min-height: 150px; }
-      .corner-number { font-size: 4rem; right: 0.75rem; }
+      .seat-tile { padding: 1.5rem 1.25rem; min-height: 168px; }
+      .corner-number { font-size: 5rem; right: 1rem; }
       .leaf-watermark { display: none; }
-      .seat-tile h2 { font-size: 1.8rem; }
-      .menu-tile { padding: 1.1rem 1.25rem; }
-      .menu-tile h2 { font-size: 1.3rem; }
     }
   </style>
 </head>
 <body>
     <nav class="site-nav">
     <a href="index.html" class="logo">✦ Jessica &amp; Jason</a>
-    <button class="nav-toggle" id="navToggle" aria-label="Menu">
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu">
       <span></span><span></span><span></span>
     </button>
     <ul class="nav-links" id="navLinks">
@@ -264,17 +261,21 @@
     </ul>
   </nav>
   <script>
-    document.getElementById('navToggle').addEventListener('click', function() {
-      this.classList.toggle('open');
-      document.getElementById('navLinks').classList.toggle('open');
-    });
-    // Close nav when a link is tapped
-    document.querySelectorAll('.nav-links a').forEach(a => {
-      a.addEventListener('click', () => {
-        document.getElementById('navToggle').classList.remove('open');
-        document.getElementById('navLinks').classList.remove('open');
+    (function() {
+      var toggle = document.getElementById('navToggle');
+      var links  = document.getElementById('navLinks');
+      if (!toggle) return;
+      toggle.addEventListener('click', function() {
+        toggle.classList.toggle('open');
+        links.classList.toggle('open');
       });
-    });
+      links.querySelectorAll('a').forEach(function(a) {
+        a.addEventListener('click', function() {
+          toggle.classList.remove('open');
+          links.classList.remove('open');
+        });
+      });
+    })();
   </script>
 
   <div class="page-wrapper">

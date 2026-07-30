@@ -1,6 +1,6 @@
 /* ==============================
    MINI GAMES — Millwick DTLA Theme
-   Mobile-first redesign
+   Mobile-first, optimized for phones
    ============================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap');
@@ -24,6 +24,8 @@
   --text-muted:   #5a7060;
   --radius:       8px;
   --radius-lg:    14px;
+  --nav-h:        52px;
+  --kbd-h:        160px; /* keyboard height reserve for wordle */
 }
 
 body {
@@ -33,11 +35,11 @@ body {
   min-height: 100vh;
   line-height: 1.5;
   -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
 }
 
 /* ============================================================
-   NAV — mobile-first: logo left, hamburger right on small,
-   full links visible on wider screens
+   NAV — hamburger on mobile
    ============================================================ */
 .site-nav {
   background: var(--forest);
@@ -45,10 +47,10 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 52px;
+  height: var(--nav-h);
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 200;
 }
 
 .site-nav .logo {
@@ -60,9 +62,10 @@ body {
   color: #e8f0e4;
   white-space: nowrap;
   flex-shrink: 0;
+  z-index: 201;
 }
 
-/* Hamburger button — mobile only */
+/* Hamburger button */
 .nav-toggle {
   display: flex;
   flex-direction: column;
@@ -71,36 +74,39 @@ body {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 6px;
+  padding: 8px;
   margin-left: auto;
+  z-index: 201;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .nav-toggle span {
   display: block;
-  width: 22px;
+  width: 24px;
   height: 2px;
   background: #e8f0e4;
   border-radius: 2px;
-  transition: transform 0.2s, opacity 0.2s;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  transform-origin: center;
 }
 
 .nav-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-.nav-toggle.open span:nth-child(2) { opacity: 0; }
+.nav-toggle.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
 .nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-/* Dropdown nav links */
+/* Dropdown */
 .nav-links {
   display: none;
   flex-direction: column;
-  position: absolute;
-  top: 52px;
+  position: fixed;
+  top: var(--nav-h);
   left: 0;
   right: 0;
   background: var(--forest-dark);
   list-style: none;
-  padding: 0.5rem 0;
-  z-index: 99;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  padding: 0.5rem 0 1rem;
+  z-index: 199;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
 }
 
 .nav-links.open { display: flex; }
@@ -110,15 +116,16 @@ body {
 .nav-links a {
   display: block;
   text-decoration: none;
-  color: rgba(232,240,228,0.8);
-  font-size: 0.9rem;
+  color: rgba(232,240,228,0.75);
+  font-size: 1rem;
   font-weight: 500;
-  padding: 0.75rem 1.25rem;
+  padding: 0.9rem 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
   transition: background 0.15s, color 0.15s;
-  letter-spacing: 0.01em;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.nav-links a:hover,
+.nav-links a:active,
 .nav-links a.active {
   background: rgba(255,255,255,0.08);
   color: #e8f0e4;
@@ -128,22 +135,21 @@ body {
 .page-wrapper {
   max-width: 600px;
   margin: 0 auto;
-  padding: 1.5rem 1rem 4rem;
+  padding: 1.25rem 1rem 3rem;
 }
 
 .page-title {
   font-family: 'Cormorant Garamond', Georgia, serif;
   font-size: 1.75rem;
   font-weight: 500;
-  letter-spacing: -0.01em;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.2rem;
   color: var(--forest);
 }
 
 .page-subtitle {
   color: var(--text-muted);
   font-size: 0.875rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 /* ---- BUTTON ---- */
@@ -152,58 +158,46 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
-  padding: 0.65rem 1.25rem;
+  padding: 0.65rem 1.1rem;
   border-radius: var(--radius);
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
   border: none;
   transition: opacity 0.15s, transform 0.1s;
-  letter-spacing: 0.01em;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
 
 .btn:active { transform: scale(0.97); }
-.btn-primary { background: var(--forest); color: #e8f0e4; }
-.btn-primary:hover { background: var(--forest-dark); }
+.btn-primary  { background: var(--forest); color: #e8f0e4; }
 .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
-.btn-secondary:hover { background: var(--sage-pale); }
+.btn-secondary:active { background: var(--sage-pale); }
 
 /* ---- GAME CARD ---- */
-.game-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.65rem;
-}
+.game-grid { display: grid; grid-template-columns: 1fr; gap: 0.6rem; }
 
 .game-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 1rem 1.25rem;
+  padding: 1rem 1.1rem;
   text-decoration: none;
   color: var(--text);
   display: flex;
   align-items: center;
-  gap: 1rem;
-  transition: box-shadow 0.15s, border-color 0.15s;
+  gap: 0.9rem;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
-.game-card:active {
-  box-shadow: 0 4px 20px rgba(37,61,44,0.1);
-  border-color: var(--sage-mid);
-}
+.game-card:active { border-color: var(--sage-mid); }
 
 .game-card .icon {
-  width: 44px;
-  height: 44px;
+  width: 44px; height: 44px;
   border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.3rem;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.25rem;
   flex-shrink: 0;
 }
 
@@ -211,18 +205,8 @@ body {
 .icon-connect { background: #d4e8f0; }
 .icon-cross   { background: #ecdfd8; }
 
-.game-card h2 {
-  font-size: 0.95rem;
-  font-weight: 700;
-  margin-bottom: 0.1rem;
-  color: var(--forest);
-}
-
-.game-card p {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  line-height: 1.35;
-}
+.game-card h2 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.1rem; color: var(--forest); }
+.game-card p  { font-size: 0.8rem; color: var(--text-muted); line-height: 1.3; }
 
 /* ---- WIN / LOSE banner ---- */
 .result-banner {
@@ -231,52 +215,60 @@ body {
   font-weight: 600;
   font-size: 0.9rem;
   text-align: center;
-  margin-top: 1.25rem;
+  margin-top: 1rem;
   display: none;
 }
-
 .result-banner.win  { background: #d8edd8; color: var(--sage-deep); border: 1px solid #b8d8b8; }
 .result-banner.lose { background: #f5e8e4; color: var(--brick-warm); border: 1px solid #e0c8c0; }
 .result-banner.show { display: block; }
 
-/* ---- KEYBOARD ---- */
+/* ============================================================
+   KEYBOARD — fixed to bottom of screen on Wordle
+   ============================================================ */
 .keyboard {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  padding: 8px 4px 12px;
   display: flex;
   flex-direction: column;
   gap: 5px;
   align-items: center;
-  margin-top: 1.25rem;
-  width: 100%;
+  z-index: 100;
 }
 
 .keyboard-row {
   display: flex;
   gap: 4px;
   width: 100%;
+  max-width: 500px;
+  padding: 0 4px;
   justify-content: center;
 }
 
 .key {
   flex: 1;
-  max-width: 40px;
-  height: 52px;
-  padding: 0 2px;
-  border-radius: 5px;
+  height: 46px;
+  max-width: 38px;
+  border-radius: 6px;
   border: none;
   background: var(--sage-soft);
   color: var(--text);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 700;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.1s;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  transition: background 0.1s;
 }
 
-.key.wide { max-width: 56px; font-size: 0.65rem; }
+.key.wide { max-width: 52px; font-size: 0.65rem; }
 .key.correct { background: var(--sage-deep); color: #fff; }
 .key.present { background: var(--gold-warm); color: #fff; }
 .key.absent  { background: #8a9e8a; color: #fff; }
@@ -284,15 +276,14 @@ body {
 /* ---- TOAST ---- */
 .toast-container {
   position: fixed;
-  top: 62px;
+  top: calc(var(--nav-h) + 10px);
   left: 50%;
   transform: translateX(-50%);
   z-index: 999;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   pointer-events: none;
-  width: 90vw;
   align-items: center;
 }
 

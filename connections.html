@@ -36,30 +36,28 @@
     .word-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
+      gap: 8px;
       margin-bottom: 1.25rem;
     }
 
     .word-btn {
-      aspect-ratio: 1.4;
+      aspect-ratio: 1.6;
       border-radius: 8px;
       border: 2px solid var(--border);
       background: var(--surface);
       color: var(--text);
-      font-size: clamp(0.6rem, 3vw, 0.8rem);
+      font-size: 0.8rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.04em;
       cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
       display: flex;
       align-items: center;
       justify-content: center;
       text-align: center;
       padding: 4px;
       user-select: none;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
     }
 
     .word-btn:hover { border-color: #888; }
@@ -120,13 +118,15 @@
 
     .one-away.show { display: block; }
 
-
+    @media (max-width: 480px) {
+      .word-btn { font-size: 0.7rem; }
+    }
   </style>
 </head>
 <body>
     <nav class="site-nav">
     <a href="index.html" class="logo">✦ Jessica &amp; Jason</a>
-    <button class="nav-toggle" id="navToggle" aria-label="Menu">
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu">
       <span></span><span></span><span></span>
     </button>
     <ul class="nav-links" id="navLinks">
@@ -138,17 +138,21 @@
     </ul>
   </nav>
   <script>
-    document.getElementById('navToggle').addEventListener('click', function() {
-      this.classList.toggle('open');
-      document.getElementById('navLinks').classList.toggle('open');
-    });
-    // Close nav when a link is tapped
-    document.querySelectorAll('.nav-links a').forEach(a => {
-      a.addEventListener('click', () => {
-        document.getElementById('navToggle').classList.remove('open');
-        document.getElementById('navLinks').classList.remove('open');
+    (function() {
+      var toggle = document.getElementById('navToggle');
+      var links  = document.getElementById('navLinks');
+      if (!toggle) return;
+      toggle.addEventListener('click', function() {
+        toggle.classList.toggle('open');
+        links.classList.toggle('open');
       });
-    });
+      links.querySelectorAll('a').forEach(function(a) {
+        a.addEventListener('click', function() {
+          toggle.classList.remove('open');
+          links.classList.remove('open');
+        });
+      });
+    })();
   </script>
 
   <div class="toast-container" id="toastContainer"></div>
