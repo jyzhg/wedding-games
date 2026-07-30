@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Crossword – Mini Games</title>
   <link rel="stylesheet" href="style.css" />
@@ -28,8 +29,8 @@
     }
 
     .cw-cell {
-      width: 64px;
-      height: 64px;
+      width: calc(min(64px, (100vw - 2.5rem) / 5));
+      height: calc(min(64px, (100vw - 2.5rem) / 5));
       border: 1px solid #ccc;
       position: relative;
       background: #fff;
@@ -48,14 +49,14 @@
       border: none;
       background: transparent;
       text-align: center;
-      font-size: 1.4rem;
+      font-size: calc(min(1.4rem, (100vw - 2.5rem) / 5 * 0.5));
       font-weight: 700;
       text-transform: uppercase;
       color: #1a1a18;
       caret-color: transparent;
       outline: none;
       cursor: pointer;
-      padding-top: 10px;
+      padding-top: calc(min(10px, (100vw - 2.5rem) / 5 * 0.15));
     }
 
     .cw-cell.active { background: #c8e8c0; }
@@ -125,9 +126,12 @@
   </style>
 </head>
 <body>
-  <nav class="site-nav">
-    <a href="index.html" class="logo">✦ Jessica & Jason</a>
-    <ul class="nav-links">
+    <nav class="site-nav">
+    <a href="index.html" class="logo">✦ Jessica &amp; Jason</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
       <li><a href="find-your-seat.html">Find Seat</a></li>
       <li><a href="menu.html">Menu</a></li>
       <li><a href="wordle.html">Wordle</a></li>
@@ -135,6 +139,19 @@
       <li><a href="crossword.html" class="active">Crossword</a></li>
     </ul>
   </nav>
+  <script>
+    document.getElementById('navToggle').addEventListener('click', function() {
+      this.classList.toggle('open');
+      document.getElementById('navLinks').classList.toggle('open');
+    });
+    // Close nav when a link is tapped
+    document.querySelectorAll('.nav-links a').forEach(a => {
+      a.addEventListener('click', () => {
+        document.getElementById('navToggle').classList.remove('open');
+        document.getElementById('navLinks').classList.remove('open');
+      });
+    });
+  </script>
 
   <div class="page-wrapper">
     <h1 class="page-title">Mini Crossword</h1>

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Connections – Mini Games</title>
   <link rel="stylesheet" href="style.css" />
@@ -35,28 +36,30 @@
     .word-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
+      gap: 6px;
       margin-bottom: 1.25rem;
     }
 
     .word-btn {
-      aspect-ratio: 1.6;
+      aspect-ratio: 1.4;
       border-radius: 8px;
       border: 2px solid var(--border);
       background: var(--surface);
       color: var(--text);
-      font-size: 0.8rem;
+      font-size: clamp(0.6rem, 3vw, 0.8rem);
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.02em;
       cursor: pointer;
-      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+      transition: background 0.15s, border-color 0.15s;
       display: flex;
       align-items: center;
       justify-content: center;
       text-align: center;
       padding: 4px;
       user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
     .word-btn:hover { border-color: #888; }
@@ -117,15 +120,16 @@
 
     .one-away.show { display: block; }
 
-    @media (max-width: 480px) {
-      .word-btn { font-size: 0.7rem; }
-    }
+
   </style>
 </head>
 <body>
-  <nav class="site-nav">
-    <a href="index.html" class="logo">✦ Jessica & Jason</a>
-    <ul class="nav-links">
+    <nav class="site-nav">
+    <a href="index.html" class="logo">✦ Jessica &amp; Jason</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
       <li><a href="find-your-seat.html">Find Seat</a></li>
       <li><a href="menu.html">Menu</a></li>
       <li><a href="wordle.html">Wordle</a></li>
@@ -133,6 +137,19 @@
       <li><a href="crossword.html">Crossword</a></li>
     </ul>
   </nav>
+  <script>
+    document.getElementById('navToggle').addEventListener('click', function() {
+      this.classList.toggle('open');
+      document.getElementById('navLinks').classList.toggle('open');
+    });
+    // Close nav when a link is tapped
+    document.querySelectorAll('.nav-links a').forEach(a => {
+      a.addEventListener('click', () => {
+        document.getElementById('navToggle').classList.remove('open');
+        document.getElementById('navLinks').classList.remove('open');
+      });
+    });
+  </script>
 
   <div class="toast-container" id="toastContainer"></div>
 

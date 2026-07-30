@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mini Games</title>
   <link rel="stylesheet" href="style.css" />
@@ -239,16 +240,22 @@
     }
 
     @media (max-width: 480px) {
-      .seat-tile { padding: 1.5rem 1.25rem; min-height: 168px; }
-      .corner-number { font-size: 5rem; right: 1rem; }
+      .seat-tile { padding: 1.25rem 1rem; min-height: 150px; }
+      .corner-number { font-size: 4rem; right: 0.75rem; }
       .leaf-watermark { display: none; }
+      .seat-tile h2 { font-size: 1.8rem; }
+      .menu-tile { padding: 1.1rem 1.25rem; }
+      .menu-tile h2 { font-size: 1.3rem; }
     }
   </style>
 </head>
 <body>
-  <nav class="site-nav">
-    <a href="index.html" class="logo">✦ Jessica & Jason</a>
-    <ul class="nav-links">
+    <nav class="site-nav">
+    <a href="index.html" class="logo">✦ Jessica &amp; Jason</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
       <li><a href="find-your-seat.html">Find Seat</a></li>
       <li><a href="menu.html">Menu</a></li>
       <li><a href="wordle.html">Wordle</a></li>
@@ -256,6 +263,19 @@
       <li><a href="crossword.html">Crossword</a></li>
     </ul>
   </nav>
+  <script>
+    document.getElementById('navToggle').addEventListener('click', function() {
+      this.classList.toggle('open');
+      document.getElementById('navLinks').classList.toggle('open');
+    });
+    // Close nav when a link is tapped
+    document.querySelectorAll('.nav-links a').forEach(a => {
+      a.addEventListener('click', () => {
+        document.getElementById('navToggle').classList.remove('open');
+        document.getElementById('navLinks').classList.remove('open');
+      });
+    });
+  </script>
 
   <div class="page-wrapper">
     <div class="hero">

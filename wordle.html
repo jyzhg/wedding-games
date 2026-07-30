@@ -1,7 +1,8 @@
-<!DOCTYPE html>
+=<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Wordle – Mini Games</title>
   <link rel="stylesheet" href="style.css" />
@@ -17,8 +18,6 @@
       color: var(--text-muted);
       margin-bottom: 1.5rem;
     }
-    .clue-box strong { color: var(--text); }
-
     .board {
       display: flex;
       flex-direction: column;
@@ -82,9 +81,12 @@
   </style>
 </head>
 <body>
-  <nav class="site-nav">
-    <a href="index.html" class="logo">✦ Jessica & Jason</a>
-    <ul class="nav-links">
+    <nav class="site-nav">
+    <a href="index.html" class="logo">✦ Jessica &amp; Jason</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
       <li><a href="find-your-seat.html">Find Seat</a></li>
       <li><a href="menu.html">Menu</a></li>
       <li><a href="wordle.html" class="active">Wordle</a></li>
@@ -92,6 +94,19 @@
       <li><a href="crossword.html">Crossword</a></li>
     </ul>
   </nav>
+  <script>
+    document.getElementById('navToggle').addEventListener('click', function() {
+      this.classList.toggle('open');
+      document.getElementById('navLinks').classList.toggle('open');
+    });
+    // Close nav when a link is tapped
+    document.querySelectorAll('.nav-links a').forEach(a => {
+      a.addEventListener('click', () => {
+        document.getElementById('navToggle').classList.remove('open');
+        document.getElementById('navLinks').classList.remove('open');
+      });
+    });
+  </script>
 
   <div class="toast-container" id="toastContainer"></div>
 
@@ -99,9 +114,7 @@
     <h1 class="page-title">Wordle</h1>
     <p class="page-subtitle">6 tries to guess the 5-letter word</p>
 
-    <div class="clue-box" id="clueBox">
-      <strong>Clue:</strong> <span id="clueText">Loading…</span>
-    </div>
+    <div class="clue-box" id="clueBox" style="display:none;"></div>
 
     <div class="board" id="board"></div>
 
@@ -116,11 +129,17 @@
 
   <script src="puzzles.js"></script>
   <script>
-    const TARGET = PUZZLES.wordle.word.toUpperCase();
-    const CLUE   = PUZZLES.wordle.clue;
+    // Pick a random word from the array on every page load
+    const TARGET = PUZZLES.wordle.words[Math.floor(Math.random() * PUZZLES.wordle.words.length)].toUpperCase();
     const ROWS   = 6, COLS = 5;
 
-    document.getElementById("clueText").textContent = CLUE;
+    // clueBox is hidden by default — only shown for special messages
+    function showMessage(html, bg) {
+      const box = document.getElementById('clueBox');
+      box.innerHTML = html;
+      box.style.display = 'block';
+      box.style.background = bg || 'var(--surface)';
+    }
 
     // Build board
     const board = document.getElementById("board");
@@ -189,6 +208,12 @@
     function submit() {
       if (currentCol < COLS) { shake(currentRow); toast("Not enough letters"); return; }
       const word = guess.join("");
+
+      // Easter egg — first guess is MAOMI
+      if (currentRow === 0 && word === "MAOMI") {
+        showMessage("🐱 <strong>Maomi says:</strong> Nice try, but I'm not a valid Wordle word… or am I? 👀", "#f0f5ed");
+      }
+
       const result = evaluate(word, TARGET);
       reveal(currentRow, result, word);
     }
@@ -242,9 +267,11 @@
           const msgs = ["Genius!", "Magnificent!", "Impressive!", "Splendid!", "Great!", "Phew!"];
           toast(msgs[Math.min(currentRow - 1, 5)]);
           launchConfetti();
+          showMessage("🎉 <strong>" + msgs[Math.min(currentRow - 1, 5)] + "</strong> The word was <strong>" + TARGET + "</strong>.", "#d8edd8");
           showResult("win", "You got it! 🎉 The word was " + TARGET + ".");
         } else if (currentRow >= ROWS) {
           gameOver = true;
+          showMessage("😔 The word was <strong>" + TARGET + "</strong>. Better luck next time!", "#f5e8e4");
           showResult("lose", "The word was " + TARGET + ". Better luck next time!");
         }
       }, COLS * 80 + 300);

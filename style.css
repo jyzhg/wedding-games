@@ -1,6 +1,6 @@
 /* ==============================
    MINI GAMES — Millwick DTLA Theme
-   Sage + greenery, warm gold, exposed brick warmth
+   Mobile-first redesign
    ============================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap');
@@ -8,19 +8,17 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* Palette — drawn from Millwick's garden courtyard */
-  --sage-pale:    #eef2ec;   /* background wash */
-  --sage-soft:    #d6e2d0;   /* card borders, subtle fills */
-  --sage-mid:     #8aab7e;   /* muted accents, icons */
-  --sage-deep:    #4a7c59;   /* active states, buttons */
-  --forest:       #253d2c;   /* nav, strong headings */
-  --forest-dark:  #182a1e;   /* deepest surfaces */
-  --gold-warm:    #c8a05a;   /* Millwick ceramic tile gold */
-  --gold-pale:    #f5ead8;   /* warm tinted surfaces */
-  --brick-warm:   #8b4f3a;   /* exposed brick red, for win states */
-
-  --bg:           #eef1eb;   /* sage-washed page */
-  --surface:      #f8f9f6;   /* card surface — off-white with green tint */
+  --sage-pale:    #eef2ec;
+  --sage-soft:    #d6e2d0;
+  --sage-mid:     #8aab7e;
+  --sage-deep:    #4a7c59;
+  --forest:       #253d2c;
+  --forest-dark:  #182a1e;
+  --gold-warm:    #c8a05a;
+  --gold-pale:    #f5ead8;
+  --brick-warm:   #8b4f3a;
+  --bg:           #eef1eb;
+  --surface:      #f8f9f6;
   --border:       #ccd8c5;
   --text:         #1e2e22;
   --text-muted:   #5a7060;
@@ -34,17 +32,20 @@ body {
   color: var(--text);
   min-height: 100vh;
   line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
 }
 
-/* ---- NAV ---- */
+/* ============================================================
+   NAV — mobile-first: logo left, hamburger right on small,
+   full links visible on wider screens
+   ============================================================ */
 .site-nav {
   background: var(--forest);
-  border-bottom: none;
-  padding: 0 1.5rem;
+  padding: 0 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 56px;
+  height: 52px;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -52,34 +53,74 @@ body {
 
 .site-nav .logo {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 500;
   font-style: italic;
-  letter-spacing: 0.01em;
   text-decoration: none;
   color: #e8f0e4;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-.site-nav .nav-links {
+/* Hamburger button — mobile only */
+.nav-toggle {
   display: flex;
-  gap: 0.25rem;
-  list-style: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  margin-left: auto;
 }
 
-.site-nav .nav-links a {
+.nav-toggle span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: #e8f0e4;
+  border-radius: 2px;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.nav-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-toggle.open span:nth-child(2) { opacity: 0; }
+.nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* Dropdown nav links */
+.nav-links {
+  display: none;
+  flex-direction: column;
+  position: absolute;
+  top: 52px;
+  left: 0;
+  right: 0;
+  background: var(--forest-dark);
+  list-style: none;
+  padding: 0.5rem 0;
+  z-index: 99;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+
+.nav-links.open { display: flex; }
+
+.nav-links li { width: 100%; }
+
+.nav-links a {
+  display: block;
   text-decoration: none;
-  color: rgba(232,240,228,0.65);
-  font-size: 0.8rem;
+  color: rgba(232,240,228,0.8);
+  font-size: 0.9rem;
   font-weight: 500;
-  padding: 0.4rem 0.75rem;
-  border-radius: var(--radius);
+  padding: 0.75rem 1.25rem;
   transition: background 0.15s, color 0.15s;
   letter-spacing: 0.01em;
 }
 
-.site-nav .nav-links a:hover,
-.site-nav .nav-links a.active {
-  background: rgba(255,255,255,0.1);
+.nav-links a:hover,
+.nav-links a.active {
+  background: rgba(255,255,255,0.08);
   color: #e8f0e4;
 }
 
@@ -87,12 +128,12 @@ body {
 .page-wrapper {
   max-width: 600px;
   margin: 0 auto;
-  padding: 2rem 1.5rem 4rem;
+  padding: 1.5rem 1rem 4rem;
 }
 
 .page-title {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 2rem;
+  font-size: 1.75rem;
   font-weight: 500;
   letter-spacing: -0.01em;
   margin-bottom: 0.25rem;
@@ -101,8 +142,8 @@ body {
 
 .page-subtitle {
   color: var(--text-muted);
-  font-size: 0.9rem;
-  margin-bottom: 2rem;
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
 }
 
 /* ---- BUTTON ---- */
@@ -111,7 +152,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
-  padding: 0.6rem 1.25rem;
+  padding: 0.65rem 1.25rem;
   border-radius: var(--radius);
   font-size: 0.875rem;
   font-weight: 600;
@@ -119,59 +160,50 @@ body {
   border: none;
   transition: opacity 0.15s, transform 0.1s;
   letter-spacing: 0.01em;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .btn:active { transform: scale(0.97); }
-
-.btn-primary {
-  background: var(--forest);
-  color: #e8f0e4;
-}
-
+.btn-primary { background: var(--forest); color: #e8f0e4; }
 .btn-primary:hover { background: var(--forest-dark); }
-
-.btn-secondary {
-  background: var(--surface);
-  color: var(--text);
-  border: 1px solid var(--border);
-}
-
+.btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
 .btn-secondary:hover { background: var(--sage-pale); }
 
-/* ---- GAME CARD (home page) ---- */
+/* ---- GAME CARD ---- */
 .game-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0.75rem;
+  gap: 0.65rem;
 }
 
 .game-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 1.25rem 1.5rem;
+  padding: 1rem 1.25rem;
   text-decoration: none;
   color: var(--text);
   display: flex;
   align-items: center;
-  gap: 1.25rem;
-  transition: box-shadow 0.15s, transform 0.1s, border-color 0.15s;
+  gap: 1rem;
+  transition: box-shadow 0.15s, border-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.game-card:hover {
+.game-card:active {
   box-shadow: 0 4px 20px rgba(37,61,44,0.1);
-  transform: translateY(-1px);
   border-color: var(--sage-mid);
 }
 
 .game-card .icon {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   flex-shrink: 0;
 }
 
@@ -180,25 +212,26 @@ body {
 .icon-cross   { background: #ecdfd8; }
 
 .game-card h2 {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  margin-bottom: 0.15rem;
+  margin-bottom: 0.1rem;
   color: var(--forest);
 }
 
 .game-card p {
-  font-size: 0.825rem;
+  font-size: 0.8rem;
   color: var(--text-muted);
+  line-height: 1.35;
 }
 
 /* ---- WIN / LOSE banner ---- */
 .result-banner {
-  padding: 1rem 1.25rem;
+  padding: 0.875rem 1rem;
   border-radius: var(--radius);
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   text-align: center;
-  margin-top: 1.5rem;
+  margin-top: 1.25rem;
   display: none;
 }
 
@@ -210,35 +243,40 @@ body {
 .keyboard {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   align-items: center;
-  margin-top: 1.5rem;
+  margin-top: 1.25rem;
+  width: 100%;
 }
 
 .keyboard-row {
   display: flex;
-  gap: 5px;
+  gap: 4px;
+  width: 100%;
+  justify-content: center;
 }
 
 .key {
-  height: 56px;
-  min-width: 36px;
-  padding: 0 6px;
+  flex: 1;
+  max-width: 40px;
+  height: 52px;
+  padding: 0 2px;
   border-radius: 5px;
   border: none;
   background: var(--sage-soft);
   color: var(--text);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 700;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s;
+  transition: background 0.1s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
-.key:hover { background: #c4d8bc; }
-.key.wide { min-width: 54px; font-size: 0.7rem; }
+.key.wide { max-width: 56px; font-size: 0.65rem; }
 .key.correct { background: var(--sage-deep); color: #fff; }
 .key.present { background: var(--gold-warm); color: #fff; }
 .key.absent  { background: #8a9e8a; color: #fff; }
@@ -246,7 +284,7 @@ body {
 /* ---- TOAST ---- */
 .toast-container {
   position: fixed;
-  top: 70px;
+  top: 62px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 999;
@@ -254,14 +292,16 @@ body {
   flex-direction: column;
   gap: 8px;
   pointer-events: none;
+  width: 90vw;
+  align-items: center;
 }
 
 .toast {
   background: var(--forest);
   color: #e8f0e4;
-  padding: 0.6rem 1.25rem;
+  padding: 0.55rem 1.1rem;
   border-radius: 999px;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 600;
   animation: toastIn 0.2s ease, toastOut 0.3s ease 1.7s forwards;
   white-space: nowrap;
@@ -272,17 +312,10 @@ body {
 
 /* ---- SECTION LABEL ---- */
 .section-label {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--sage-mid);
-  margin-bottom: 0.75rem;
-}
-
-/* ---- RESPONSIVE ---- */
-@media (max-width: 480px) {
-  .page-wrapper { padding: 1.25rem 1rem 3rem; }
-  .key { min-width: 30px; height: 50px; font-size: 0.75rem; }
-  .key.wide { min-width: 44px; }
+  margin-bottom: 0.65rem;
 }
