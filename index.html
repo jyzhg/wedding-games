@@ -324,41 +324,51 @@
 <body>
 
   <script>
-    // THE definitive cross-browser fixed background solution.
-    // Neither background-attachment:fixed nor position:fixed are reliable
-    // on mobile Chrome or Safari when the address bar animates.
-    // Solution: a div positioned via JS using window.screen.height
-    // (screen dimensions never change, unlike vh/vw/window.innerHeight).
+    // Background that never moves on Chrome or Safari mobile.
+    // Approach: inject into <body> (not html), use screen dimensions,
+    // and nest inside a fixed wrapper to force proper GPU compositing on Safari.
     (function() {
       var W = window.screen.width;
       var H = window.screen.height;
-      // Use the larger dimension so landscape/portrait both covered
-      var size = Math.max(W, H);
+      var size = Math.max(W, H) + 200; // always oversized
 
-      var bg = document.createElement('div');
-      bg.id = 'bg';
-      bg.style.cssText = [
+      // Outer wrapper: fixed to viewport, never scrolls
+      var wrap = document.createElement('div');
+      wrap.style.cssText = [
         'position:fixed',
-        // Overshoot in every direction so any sub-pixel shift is invisible
-        'top:-100px',
-        'left:-100px',
-        'width:' + (W + 200) + 'px',
-        'height:' + (size + 200) + 'px',
-        'background-image:url("background.jpg")',
-        // Use the oversize div dimensions, not cover, so no rescaling happens
-        'background-size:' + (W + 200) + 'px ' + (size + 200) + 'px',
-        'background-position:top left',
-        'background-repeat:no-repeat',
+        'top:0','left:0',
+        'width:100%','height:100%',
         'z-index:-1',
         'pointer-events:none',
-        'transform:translateZ(0)',
-        '-webkit-transform:translateZ(0)',
+        'overflow:hidden',
+        // Force own compositing layer on Safari
+        '-webkit-transform:translate3d(0,0,0)',
+        'transform:translate3d(0,0,0)'
+      ].join(';');
+
+      // Inner div: the actual background, slightly oversized
+      var bg = document.createElement('div');
+      bg.style.cssText = [
+        'position:absolute',
+        'top:-50px','left:-50px',
+        'width:calc(100% + 100px)',
+        'height:' + size + 'px',
+        'background-image:url("background.jpg")',
+        'background-size:cover',
+        'background-position:center top',
+        'background-repeat:no-repeat',
+        // Another compositing hint
+        '-webkit-transform:translate3d(0,0,0)',
+        'transform:translate3d(0,0,0)',
         'will-change:transform'
       ].join(';');
-      document.documentElement.appendChild(bg);
 
-      document.documentElement.style.backgroundImage = 'none';
-      document.documentElement.style.backgroundColor = 'transparent';
+      wrap.appendChild(bg);
+      document.body.insertBefore(wrap, document.body.firstChild);
+
+      // Strip any competing CSS backgrounds
+      document.documentElement.style.background = 'transparent';
+      document.body.style.background = 'transparent';
     })();
   </script>
 
@@ -491,6 +501,49 @@
         el.style.opacity = '1';
       }, 400);
     }, 3200);
+
+    // One-time splash — once user scrolls into the content panel,
+    // remove the splash entirely so they can never scroll back up to it
+    (function() {
+      var splash  = document.querySelector('.splash');
+      var panel   = document.querySelector('.content-panel');
+      var done    = false;
+
+      function dismiss() {
+        if (done) return;
+        var panelTop = panel.getBoundingClientRect().top;
+
+        // Trigger once the content panel is 30% into view
+        if (panelTop < window.innerHeight * 0.7) {
+          done = true;
+
+          // 1. Fade out splash
+          splash.style.transition = 'opacity 0.4s ease';
+          splash.style.opacity = '0';
+
+          setTimeout(function() {
+            // 2. Remove splash from DOM entirely
+            if (splash.parentNode) splash.parentNode.removeChild(splash);
+
+            // 3. Snap scroll to top of content panel (no splash to go back to)
+            panel.scrollIntoView({ behavior: 'instant' });
+
+            // 4. Lock: prevent scrolling above the content panel by
+            //    resetting scroll position if user tries to go above it
+            window.addEventListener('scroll', function() {
+              if (window.scrollY < panel.offsetTop - 10) {
+                window.scrollTo({ top: panel.offsetTop, behavior: 'instant' });
+              }
+            }, { passive: false });
+
+          }, 420);
+
+          window.removeEventListener('scroll', dismiss);
+        }
+      }
+
+      window.addEventListener('scroll', dismiss, { passive: true });
+    })();
   </script>
 </body>
 </html>
