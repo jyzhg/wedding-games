@@ -17,8 +17,8 @@
   --gold-warm:    #c8a05a;
   --gold-pale:    #f5ead8;
   --brick-warm:   #8b4f3a;
-  --bg:           #eef1eb;
-  --surface:      #f8f9f6;
+  --bg:           transparent;
+  --surface:      rgba(255, 255, 255, 0.75);
   --border:       #ccd8c5;
   --text:         #1e2e22;
   --text-muted:   #5a7060;
@@ -30,11 +30,7 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background-image: url('background.jpg');
-  background-size: contain;
-  background-position: center top;
-  background-attachment: scroll;
-  background-repeat: no-repeat;
+  background: transparent;
   color: var(--text);
   min-height: 100vh;
   line-height: 1.5;
@@ -193,7 +189,7 @@ body {
 .game-grid { display: grid; grid-template-columns: 1fr; gap: 0.6rem; }
 
 .game-card {
-  background: var(--surface);
+  background: rgba(255, 255, 255, 0.75);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 1rem 1.1rem;
@@ -245,7 +241,7 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  background: var(--bg);
+  background: rgba(238, 241, 235, 0.92);
   border-top: 1px solid var(--border);
   padding: 8px 4px 12px;
   display: flex;
@@ -324,4 +320,23 @@ body {
   text-transform: uppercase;
   color: var(--sage-mid);
   margin-bottom: 0.65rem;
+}
+
+/* ---- Transparent layout for background image ---- */
+.content-panel {
+  background: transparent;
+  box-shadow: none;
+}
+
+.page-wrapper {
+  background: transparent;
+}
+
+.menu-tile {
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.leaf-divider::before,
+.leaf-divider::after {
+  background: rgba(204, 216, 197, 0.6);
 }
