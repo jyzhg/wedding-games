@@ -586,9 +586,15 @@
         requestAnimationFrame(animateScroll);
       }
 
-      // Trigger on any scroll past 40px
+      // Only allow dismiss after user has been on page for at least 2 seconds
+      // AND has scrolled more than 80% of the viewport height intentionally
+      var pageLoadTime = Date.now();
+
       function onScroll() {
-        if (window.scrollY > 40) dismiss();
+        var timeOnPage = Date.now() - pageLoadTime;
+        var scrolledEnough = window.scrollY > window.innerHeight * 0.8;
+        var waitedEnough = timeOnPage > 2000;
+        if (scrolledEnough && waitedEnough) dismiss();
       }
 
       window.addEventListener('scroll', onScroll, { passive: true });
