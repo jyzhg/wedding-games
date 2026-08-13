@@ -19,38 +19,31 @@
     /* The trick: put background on html, lock body, scroll an inner div */
 
     /* ============================================================
-       SPLASH — full viewport height, normal scroll flow
-       Chrome: JS below sets position:fixed so text never moves
-       Safari: stays position:relative (fixed is buggy on Safari)
+       SPLASH — fixed overlay on top of content, both browsers
+       Content panel is already at scroll position 0 underneath
        ============================================================ */
     .splash {
-      height: 100dvh;
+      position: fixed;
+      inset: 0;
+      z-index: 20;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
       padding: 2rem;
-      position: relative;
+      /* Transition only opacity — no layout changes */
+      transition: opacity 0.7s ease;
+      pointer-events: all;
     }
 
-    /* Chrome gets fixed splash via JS — this class is added by JS */
-    .splash.fixed-splash {
-      position: fixed;
-      inset: 0;
-      height: 100%;
-      z-index: 10;
+    .splash.dismissed {
+      opacity: 0;
+      pointer-events: none;
     }
 
-    /* When splash is fixed, we need a spacer to push content below */
-    .splash-spacer {
-      display: none;
-      height: 100dvh;
-    }
-
-    .splash-spacer.active {
-      display: block;
-    }
+    /* Spacer not needed anymore — content is already at top */
+    .splash-spacer { display: none !important; }
 
     .splash-eyebrow {
       font-size: 0.68rem;
@@ -523,76 +516,36 @@
       }, 400);
     }, 3200);
 
-    // ── Smooth one-time splash transition ──
+    // ── Splash dismiss — overlay fades, no scroll jump, no repaint ──
+    // Splash is position:fixed so content panel is already at scrollY:0 beneath it.
+    // Dismiss = pure CSS opacity transition. Nothing moves. Nothing repaints.
     (function() {
-      var splash = document.getElementById('splash');
-      var spacer = document.getElementById('splashSpacer');
-      var panel  = document.querySelector('.content-panel');
-      var done   = false;
-
-      var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-
-      // Chrome: fix splash so it can't scroll with page
-      if (!isSafari) {
-        splash.classList.add('fixed-splash');
-        spacer.classList.add('active');
-      }
+      var splash       = document.getElementById('splash');
+      var done         = false;
+      var pageLoadTime = Date.now();
 
       function dismiss() {
         if (done) return;
         done = true;
-        window.removeEventListener('scroll', dismiss);
+        window.removeEventListener('scroll', onScroll);
 
-        // Step 1: immediately stop any ongoing scroll momentum
-        window.scrollTo({ top: window.scrollY, behavior: 'instant' });
+        // Scroll back to top instantly (in case user scrolled)
+        // so content panel is fully visible at position 0
+        window.scrollTo({ top: 0, behavior: 'instant' });
 
-        // Step 2: fade out splash over 600ms
-        splash.style.transition = 'opacity 0.6s ease';
-        splash.style.opacity = '0';
+        // Fade out the fixed overlay — content beneath is already there
+        splash.classList.add('dismissed');
 
-        // Step 3: simultaneously scroll to content top smoothly
-        // Use a JS animation instead of scrollIntoView to control timing exactly
-        var startY   = window.scrollY;
-        var targetY  = panel.offsetTop;
-        var duration = 600; // match splash fade
-        var startT   = null;
-
-        function easeInOut(t) {
-          return t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
-        }
-
-        function animateScroll(timestamp) {
-          if (!startT) startT = timestamp;
-          var progress = Math.min((timestamp - startT) / duration, 1);
-          window.scrollTo(0, startY + (targetY - startY) * easeInOut(progress));
-          if (progress < 1) {
-            requestAnimationFrame(animateScroll);
-          } else {
-            // Step 4: remove splash + spacer after animation completes
-            if (splash.parentNode) splash.parentNode.removeChild(splash);
-            if (spacer && spacer.parentNode) spacer.parentNode.removeChild(spacer);
-
-            // Step 5: lock — prevent scrolling above panel ever again
-            var locked = panel.offsetTop;
-            window.addEventListener('scroll', function lockScroll() {
-              if (window.scrollY < locked - 5) {
-                window.scrollTo({ top: locked, behavior: 'instant' });
-              }
-            }, { passive: true });
-          }
-        }
-
-        requestAnimationFrame(animateScroll);
+        // Remove from DOM after CSS transition completes
+        setTimeout(function() {
+          if (splash.parentNode) splash.parentNode.removeChild(splash);
+        }, 800);
       }
 
-      // Only allow dismiss after user has been on page for at least 2 seconds
-      // AND has scrolled more than 80% of the viewport height intentionally
-      var pageLoadTime = Date.now();
-
       function onScroll() {
-        var timeOnPage = Date.now() - pageLoadTime;
+        var timeOnPage     = Date.now() - pageLoadTime;
         var scrolledEnough = window.scrollY > window.innerHeight * 0.8;
-        var waitedEnough = timeOnPage > 2000;
+        var waitedEnough   = timeOnPage > 2000;
         if (scrolledEnough && waitedEnough) dismiss();
       }
 
