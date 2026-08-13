@@ -264,17 +264,24 @@
       border-radius: 8px;
     }
 
-    /* ---- Splash screen ---- */
+    /* ---- Splash overlay — fixed over content ---- */
     .splash {
-      height: 100svh;
+      position: fixed;
+      inset: 0;
+      z-index: 50;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
       padding: 2rem;
-      position: relative;
-      flex-shrink: 0;
+      pointer-events: all;
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .splash.hidden {
+      opacity: 0;
+      pointer-events: none;
     }
 
     .splash-eyebrow {
@@ -291,8 +298,8 @@
       font-weight: 100;
       color: #ffffff;
       line-height: 1.1;
-      margin-bottom: 0.5rem;
-      text-shadow: 0 2px 20px rgba(0,0,0,0.4);
+      margin-bottom: 0.75rem;
+      text-shadow: 0 2px 24px rgba(0,0,0,0.4);
     }
 
     .splash-title em {
@@ -301,43 +308,43 @@
     }
 
     .splash-sub {
-      font-size: 0.85rem;
+      font-size: 0.875rem;
       color: rgba(255,255,255,0.65);
       max-width: 28ch;
       line-height: 1.6;
+      margin-bottom: 0;
     }
 
     .scroll-hint {
       position: absolute;
-      bottom: 2rem;
+      bottom: 2.5rem;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 0.4rem;
-      color: rgba(255,255,255,0.5);
+      color: rgba(255,255,255,0.45);
       font-size: 0.65rem;
       letter-spacing: 0.15em;
       text-transform: uppercase;
-      animation: bounce 2s ease infinite;
       white-space: nowrap;
+      animation: bounce 2s ease infinite;
     }
 
-    .scroll-hint::after { content: '↓'; font-size: 1.1rem; }
+    .scroll-hint::after { content: '↓'; font-size: 1rem; }
 
     @keyframes bounce {
       0%, 100% { transform: translateX(-50%) translateY(0); }
-      50%       { transform: translateX(-50%) translateY(6px); }
+      50%       { transform: translateX(-50%) translateY(7px); }
     }
 
-    /* ---- Content panel ---- */
+    /* ---- Content sits at top, revealed as splash fades ---- */
     .content-panel {
       background: transparent;
       box-shadow: none;
       position: relative;
       z-index: 1;
-      min-height: 100svh;
     }
 
     @media (max-width: 480px) {
@@ -380,7 +387,7 @@
     })();
   </script>
 
-  <!-- Splash — one time experience -->
+  <!-- Splash — fixed overlay, fades out on scroll/tap -->
   <div class="splash" id="splash">
     <p class="splash-eyebrow">Millwick · DTLA · September 5, 2026</p>
     <p class="splash-title"><span>Today's</span> <em>Celebration</em></p>
@@ -388,8 +395,7 @@
     <div class="scroll-hint">scroll</div>
   </div>
 
-  <!-- Content panel -->
-  <div class="content-panel" id="contentPanel">
+  <div class="content-panel">
   <div class="page-wrapper">
     <div class="hero">
       <!-- Botanical leaf watermark SVG -->
@@ -500,33 +506,32 @@
   </script>
   </div>
   <script>
-    // One-time splash — once user scrolls past it, remove it entirely
     (function() {
       var splash = document.getElementById('splash');
-      var panel  = document.getElementById('contentPanel');
-      var gone   = false;
+      if (!splash) return;
+      var dismissed = false;
 
-      function checkScroll() {
-        if (gone) return;
-        var scrolled = window.scrollY || window.pageYOffset;
-        var splashH  = splash ? splash.offsetHeight : 0;
-
-        if (scrolled >= splashH * 0.6) {
-          gone = true;
-          if (splash) {
-            splash.style.transition = 'opacity 0.4s ease';
-            splash.style.opacity = '0';
-            setTimeout(function() {
-              if (splash.parentNode) splash.parentNode.removeChild(splash);
-              // Snap to top of content so user can't scroll back to empty space
-              window.scrollTo({ top: 0, behavior: 'instant' });
-            }, 400);
-          }
-          window.removeEventListener('scroll', checkScroll);
-        }
+      function dismiss() {
+        if (dismissed) return;
+        dismissed = true;
+        splash.classList.add('hidden');
+        // Remove from DOM after fade completes so it can never be scrolled back to
+        setTimeout(function() {
+          if (splash.parentNode) splash.parentNode.removeChild(splash);
+        }, 650);
       }
 
-      window.addEventListener('scroll', checkScroll, { passive: true });
+      // Dismiss on any scroll
+      window.addEventListener('scroll', dismiss, { passive: true, once: true });
+      // Also dismiss on tap/click for users who don't scroll first
+      splash.addEventListener('click', dismiss);
+      splash.addEventListener('touchstart', function(e) {
+        // Only dismiss on upward swipe, not tap
+        var startY = e.touches[0].clientY;
+        splash.addEventListener('touchend', function(e2) {
+          if (e2.changedTouches[0].clientY < startY - 20) dismiss();
+        }, { once: true });
+      }, { passive: true });
     })();
   </script>
 </body>
