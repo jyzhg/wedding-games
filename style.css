@@ -9,16 +9,12 @@
 
 /* ============================================================
    BACKGROUND
-   Chrome: background-attachment:fixed on html works natively
-   iOS Safari: JS in index.html detects iOS and injects a
-               GPU-composited fixed div instead
+   Handled entirely by JS in index.html using screen.height.
+   This works on both Chrome and Safari mobile — no CSS background needed.
    ============================================================ */
 html {
-  background-image: url('background.jpg');
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+  /* Background set by JS using screen.height — works on both Chrome and Safari */
+  background: transparent;
   min-height: 100%;
 }
 

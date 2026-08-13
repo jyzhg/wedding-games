@@ -324,35 +324,41 @@
 <body>
 
   <script>
-    // Cross-browser background fix
-    // Chrome: background-attachment:fixed on html works great
-    // iOS Safari: fixed elements repaint on scroll, so we use a GPU-composited div instead
+    // THE definitive cross-browser fixed background solution.
+    // Neither background-attachment:fixed nor position:fixed are reliable
+    // on mobile Chrome or Safari when the address bar animates.
+    // Solution: a div positioned via JS using window.screen.height
+    // (screen dimensions never change, unlike vh/vw/window.innerHeight).
     (function() {
-      var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      var W = window.screen.width;
+      var H = window.screen.height;
+      // Use the larger dimension so landscape/portrait both covered
+      var size = Math.max(W, H);
 
-      if (isIOS) {
-        // Remove background from html element on iOS
-        document.documentElement.style.backgroundImage = 'none';
+      var bg = document.createElement('div');
+      bg.id = 'bg';
+      bg.style.cssText = [
+        'position:fixed',
+        // Overshoot in every direction so any sub-pixel shift is invisible
+        'top:-100px',
+        'left:-100px',
+        'width:' + (W + 200) + 'px',
+        'height:' + (size + 200) + 'px',
+        'background-image:url("background.jpg")',
+        // Use the oversize div dimensions, not cover, so no rescaling happens
+        'background-size:' + (W + 200) + 'px ' + (size + 200) + 'px',
+        'background-position:top left',
+        'background-repeat:no-repeat',
+        'z-index:-1',
+        'pointer-events:none',
+        'transform:translateZ(0)',
+        '-webkit-transform:translateZ(0)',
+        'will-change:transform'
+      ].join(';');
+      document.documentElement.appendChild(bg);
 
-        // Create a fixed div that iOS handles correctly
-        var bg = document.createElement('div');
-        bg.style.cssText = [
-          'position:fixed',
-          'top:-30px',          /* bleed prevents edge flash when address bar hides */
-          'left:-30px',
-          'width:calc(100% + 60px)',
-          'height:calc(100% + 60px)',
-          'background-image:url("background.jpg")',
-          'background-size:cover',
-          'background-position:center center',
-          'background-repeat:no-repeat',
-          'z-index:-1',
-          'transform:translateZ(0)',          /* force own GPU compositing layer */
-          '-webkit-transform:translateZ(0)'
-        ].join(';');
-        document.body.insertBefore(bg, document.body.firstChild);
-      }
+      document.documentElement.style.backgroundImage = 'none';
+      document.documentElement.style.backgroundColor = 'transparent';
     })();
   </script>
 
