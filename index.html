@@ -8,33 +8,43 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=League+Script&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=League+Script&family=Oooh+Baby&family=Playwrite+DK+Loopet:wght@100..400&display=swap" rel="stylesheet">
   <style>
+
     /* ---- Hero ---- */
     .hero {
       padding: 2.5rem 0 1.75rem;
       position: relative;
+    }
+    .hero-badge .hero-eyebrow {
+    color: #A8D299;
     }
 
     .hero-eyebrow {
       font-size: 0.68rem;
       letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: var(--sage-mid);
       margin-bottom: 0.5rem;
     }
 
     .hero h1 {
-      font-family: 'Cormorant Garamond', Georgia, serif;
-      font-size: clamp(2rem, 5vw, 2.6rem);
-      font-weight: 400;
-      color: var(--forest);
+      font-family: "Oooh Baby", cursive;
+      font-size: clamp(3rem, 5vw, 2.6rem);
+      font-weight: 100;
+      color: #f8f8ff;
       line-height: 1.1;
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.2rem;
     }
+
+    .word-today {
+      font-family:  "Oooh Baby", cursive;
+
+    }     
 
     .hero h1 em {
       font-style: italic;
-      color: var(--sage-deep);
+      color: #D3AF37;
     }
 
     .hero p {
@@ -239,6 +249,21 @@
       opacity: 0.7;
     }
 
+    /* ---- Hero badge ---- */
+    .hero-badge {
+      border: 1px solid transparent;
+      border-top-color: var(--gold-warm);
+      border-bottom-color: var(--gold-warm);
+      padding: 0.875rem 0;
+      margin: 0 -5px 0.75rem;
+      padding-left: 5px;
+      padding-right: 5px;
+      display: inline-block;
+      width: calc(100% + 10px);
+      background: rgba(255, 255, 255, 0.0);
+      border-radius: 8px;
+    }
+
     @media (max-width: 480px) {
       .seat-tile { padding: 1.5rem 1.25rem; min-height: 168px; }
       .corner-number { font-size: 5rem; right: 1rem; }
@@ -298,9 +323,11 @@
         <path d="M30 106 L30 175" stroke="#253d2c" stroke-width="1"/>
       </svg>
 
-      <p class="hero-eyebrow">Millwick · DTLA</p>
-      <h1>Today's <em>Agenda</em></h1>
-      <p>Find your table, check out the menu and play some of puzzles while the night unfolds.</p>
+      <div class="hero-badge">
+        <p class="hero-eyebrow">Millwick · DTLA</p>
+        <h1><span class="word-today">Today's</span> <em>Celebration</em></h1>
+      </div>
+      <p>Find your table, check out the menu and play some of our favorite daily puzzles while the night unfolds.</p>
     </div>
 
     <!-- Find Your Seat -->
