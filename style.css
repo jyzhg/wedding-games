@@ -1,11 +1,26 @@
 /* ==============================
-   MINI GAMES — Millwick DTLA Theme
+   JESSICA & JASON — Millwick DTLA
    Mobile-first, optimized for phones
    ============================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ============================================================
+   BACKGROUND
+   Chrome: background-attachment:fixed on html works natively
+   iOS Safari: JS in index.html detects iOS and injects a
+               GPU-composited fixed div instead
+   ============================================================ */
+html {
+  background-image: url('background.jpg');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100%;
+}
 
 :root {
   --sage-pale:    #eef2ec;
@@ -17,7 +32,7 @@
   --gold-warm:    #c8a05a;
   --gold-pale:    #f5ead8;
   --brick-warm:   #8b4f3a;
-  --bg:           transparent;
+  --bg:           rgba(238, 241, 235, 0.95);
   --surface:      rgba(255, 255, 255, 0.82);
   --border:       #ccd8c5;
   --text:         #1e2e22;
@@ -25,12 +40,12 @@
   --radius:       8px;
   --radius-lg:    14px;
   --nav-h:        52px;
-  --kbd-h:        160px; /* keyboard height reserve for wordle */
 }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-color: var(--text);
+  background: transparent;
+  color: var(--text);
   min-height: 100vh;
   line-height: 1.5;
   -webkit-text-size-adjust: 100%;
@@ -38,7 +53,7 @@ color: var(--text);
 }
 
 /* ============================================================
-   NAV — hamburger on mobile
+   NAV
    ============================================================ */
 .site-nav {
   background: var(--forest);
@@ -61,12 +76,8 @@ color: var(--text);
   color: #e8f0e4;
   white-space: nowrap;
   flex-shrink: 0;
-  z-index: 201;
 }
 
-
-
-/* Hamburger button */
 .nav-toggle {
   display: flex;
   flex-direction: column;
@@ -95,14 +106,12 @@ color: var(--text);
 .nav-toggle.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
 .nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-/* Dropdown */
 .nav-links {
   display: none;
   flex-direction: column;
   position: fixed;
   top: var(--nav-h);
-  left: 0;
-  right: 0;
+  left: 0; right: 0;
   background: var(--forest-dark);
   list-style: none;
   padding: 0.5rem 0 1rem;
@@ -111,7 +120,6 @@ color: var(--text);
 }
 
 .nav-links.open { display: flex; }
-
 .nav-links li { width: 100%; }
 
 .nav-links a {
@@ -131,7 +139,6 @@ color: var(--text);
   background: rgba(255,255,255,0.08);
   color: #e8f0e4;
 }
-
 
 /* ---- PAGE LAYOUT ---- */
 .page-wrapper {
@@ -225,13 +232,11 @@ color: var(--text);
 .result-banner.show { display: block; }
 
 /* ============================================================
-   KEYBOARD — fixed to bottom of screen on Wordle
+   KEYBOARD — fixed to bottom on Wordle
    ============================================================ */
 .keyboard {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  bottom: 0; left: 0; right: 0;
   background: var(--bg);
   border-top: 1px solid var(--border);
   padding: 8px 4px 12px;
@@ -270,7 +275,7 @@ color: var(--text);
   transition: background 0.1s;
 }
 
-.key.wide { max-width: 52px; font-size: 0.65rem; }
+.key.wide   { max-width: 52px; font-size: 0.65rem; }
 .key.correct { background: var(--sage-deep); color: #fff; }
 .key.present { background: var(--gold-warm); color: #fff; }
 .key.absent  { background: #8a9e8a; color: #fff; }

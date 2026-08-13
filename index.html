@@ -12,19 +12,11 @@
 
     
 
-    /* ---- Locked background — prevents iOS zoom on scroll ---- */
-    .bg-lock {
-      position: fixed;
-      inset: 0;
-      background-image: url('background.jpg');
-      background-size: cover;
-      background-position: center center;
-      background-repeat: no-repeat;
-      z-index: -1;
-      will-change: transform;
-      transform: translateZ(0);
-      -webkit-transform: translateZ(0);
-    }
+    /* ============================================================
+       BACKGROUND — on html element, never moves no matter what
+       ============================================================ */
+
+    /* The trick: put background on html, lock body, scroll an inner div */
 
     /* ============================================================
        SPLASH — full viewport height, normal scroll flow
@@ -331,8 +323,38 @@
 </head>
 <body>
 
-  <!-- Background — locked div prevents iOS zoom on scroll -->
-  <div class="bg-lock"></div>
+  <script>
+    // Cross-browser background fix
+    // Chrome: background-attachment:fixed on html works great
+    // iOS Safari: fixed elements repaint on scroll, so we use a GPU-composited div instead
+    (function() {
+      var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+      if (isIOS) {
+        // Remove background from html element on iOS
+        document.documentElement.style.backgroundImage = 'none';
+
+        // Create a fixed div that iOS handles correctly
+        var bg = document.createElement('div');
+        bg.style.cssText = [
+          'position:fixed',
+          'top:-30px',          /* bleed prevents edge flash when address bar hides */
+          'left:-30px',
+          'width:calc(100% + 60px)',
+          'height:calc(100% + 60px)',
+          'background-image:url("background.jpg")',
+          'background-size:cover',
+          'background-position:center center',
+          'background-repeat:no-repeat',
+          'z-index:-1',
+          'transform:translateZ(0)',          /* force own GPU compositing layer */
+          '-webkit-transform:translateZ(0)'
+        ].join(';');
+        document.body.insertBefore(bg, document.body.firstChild);
+      }
+    })();
+  </script>
 
   <!-- NAV -->
   <nav class="site-nav">
