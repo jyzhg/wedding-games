@@ -4,60 +4,174 @@
   <meta charset="UTF-8" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mini Games</title>
+  <title>Jessica & Jason</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=League+Script&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=League+Script&family=Oooh+Baby&family=Playwrite+DK+Loopet:wght@100..400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Oooh+Baby&display=swap" rel="stylesheet">
   <style>
 
-    /* ---- Hero ---- */
-    .hero {
-      padding: 2.5rem 0 1.75rem;
+    /* ============================================================
+       BACKGROUND — pinned via pseudo-element, never moves
+       ============================================================ */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url('background.jpg');
+      background-size: cover;
+      background-position: center center;
+      z-index: -1;
+    }
+
+    body {
+      background: transparent;
+    }
+
+    /* ============================================================
+       SPLASH — full viewport height, normal scroll flow
+       User scrolls naturally; no JS needed to reveal content
+       ============================================================ */
+    .splash {
+      height: 100dvh; /* dvh accounts for mobile browser chrome */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
       position: relative;
     }
-    .hero-badge .hero-eyebrow {
-    color: #A8D299;
+
+    .splash-eyebrow {
+      font-size: 0.68rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 1rem;
+    }
+
+    .splash-title {
+      font-family: "Oooh Baby", cursive;
+      font-size: clamp(2.8rem, 12vw, 5rem);
+      font-weight: 100;
+      color: #ffffff;
+      line-height: 1.15;
+      margin-bottom: 0.75rem;
+      text-shadow: 0 2px 24px rgba(0,0,0,0.5);
+    }
+
+    .splash-title em {
+      font-style: italic;
+      color: #D3AF37;
+    }
+
+    .splash-sub {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.6);
+      max-width: 28ch;
+      line-height: 1.6;
+    }
+
+    /* Bouncing scroll indicator */
+    .scroll-hint {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      color: rgba(255,255,255,0.4);
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      animation: bounce 2s ease infinite;
+    }
+
+    .scroll-hint::after {
+      content: '↓';
+      font-size: 1rem;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50%       { transform: translateX(-50%) translateY(8px); }
+    }
+
+    /* ============================================================
+       CONTENT PANEL — slides up naturally as user scrolls
+       Rounded top corners, sits on top of background
+       ============================================================ */
+    .content-panel {
+      background: var(--bg);
+      border-radius: 24px 24px 0 0;
+      box-shadow: 0 -4px 32px rgba(0,0,0,0.18);
+      position: relative;
+      z-index: 1;
+      padding: 2rem 1rem 4rem;
+    }
+
+    .content-inner {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* ---- Hero inside content panel ---- */
+    .hero {
+      padding: 0 0 1.5rem;
+      position: relative;
     }
 
     .hero-eyebrow {
       font-size: 0.68rem;
       letter-spacing: 0.2em;
       text-transform: uppercase;
+      color: var(--sage-mid);
       margin-bottom: 0.5rem;
     }
 
+    .hero p.desc {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+
+    /* ---- Hero badge ---- */
+    .hero-badge {
+      border: 1px solid transparent;
+      border-top-color: var(--gold-warm);
+      border-bottom-color: var(--gold-warm);
+      padding: 0.875rem 5px;
+      margin: 0 -5px 0.75rem;
+      width: calc(100% + 10px);
+      background: rgba(255,255,255,0.0);
+      border-radius: 8px;
+    }
+
+    .hero-badge .hero-eyebrow { color: #A8D299; }
+
     .hero h1 {
       font-family: "Oooh Baby", cursive;
-      font-size: clamp(3rem, 5vw, 2.6rem);
+      font-size: clamp(2.4rem, 8vw, 3rem);
       font-weight: 100;
-      color: #f8f8ff;
+      color: var(--forest);
       line-height: 1.1;
       margin-bottom: 0.2rem;
     }
-
-    .word-today {
-      font-family:  "Oooh Baby", cursive;
-
-    }     
 
     .hero h1 em {
       font-style: italic;
       color: #D3AF37;
     }
 
-    .hero p {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-    }
-
     /* ---- Leaf SVG watermark ---- */
     .leaf-watermark {
       position: absolute;
-      right: -1rem;
-      top: 1rem;
-      opacity: 0.12;
+      right: -0.5rem;
+      top: 0;
+      opacity: 0.1;
       pointer-events: none;
     }
 
@@ -68,24 +182,15 @@
       border-radius: 18px;
       overflow: hidden;
       position: relative;
-      margin-bottom: 2rem;
+      margin-bottom: 1rem;
       background: var(--forest);
-      min-height: 196px;
-      padding: 2rem 2rem;
-      transition: transform 0.2s, box-shadow 0.2s;
+      min-height: 180px;
+      padding: 1.75rem;
     }
 
-    .seat-tile:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 14px 40px rgba(24,42,30,0.25);
-    }
-
-    /* Botanical leaf pattern in background */
     .seat-tile .tile-leaves {
       position: absolute;
-      right: 0;
-      top: 0;
-      bottom: 0;
+      right: 0; top: 0; bottom: 0;
       width: 55%;
       opacity: 0.13;
       pointer-events: none;
@@ -99,27 +204,24 @@
       letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--gold-warm);
-      margin-bottom: 0.6rem;
+      margin-bottom: 0.5rem;
       position: relative;
     }
 
     .seat-tile h2 {
       font-family: 'Cormorant Garamond', Georgia, serif;
-      font-size: clamp(2rem, 5vw, 2.7rem);
+      font-size: clamp(1.8rem, 5vw, 2.5rem);
       font-weight: 400;
       color: #e8f0e4;
       line-height: 1.1;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.4rem;
       position: relative;
     }
 
-    .seat-tile h2 em {
-      font-style: italic;
-      color: #b8d8a8;
-    }
+    .seat-tile h2 em { font-style: italic; color: #b8d8a8; }
 
     .seat-tile p {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: rgba(200,220,196,0.7);
       max-width: 26ch;
       position: relative;
@@ -129,33 +231,29 @@
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
-      margin-top: 1.25rem;
-      font-size: 0.78rem;
+      margin-top: 1rem;
+      font-size: 0.75rem;
       font-weight: 600;
       color: var(--gold-warm);
       letter-spacing: 0.06em;
       text-transform: uppercase;
       position: relative;
-      transition: gap 0.2s;
     }
-
-    .seat-tile:hover .tile-cta { gap: 0.65rem; }
 
     .seat-tile .tile-cta::after { content: '→'; }
 
-    /* Cycling table number */
     .corner-number {
       position: absolute;
-      right: 1.75rem;
+      right: 1.5rem;
       top: 50%;
       transform: translateY(-50%);
       font-family: 'Cormorant Garamond', Georgia, serif;
-      font-size: 7rem;
+      font-size: 6rem;
       font-weight: 400;
-      color: rgba(140,200,120,0.15);
+      color: rgba(140,200,120,0.12);
       line-height: 1;
       user-select: none;
-      transition: opacity 0.6s ease;
+      transition: opacity 0.5s;
     }
 
     /* ---- Menu tile ---- */
@@ -164,18 +262,11 @@
       align-items: center;
       justify-content: space-between;
       text-decoration: none;
-      border-radius: 16px;
+      border-radius: 14px;
       border: 1px solid var(--border);
-      background: var(--surface);
-      padding: 1.5rem 1.75rem;
+      background: rgba(255,255,255,0.75);
+      padding: 1.25rem 1.5rem;
       margin-bottom: 1rem;
-      transition: box-shadow 0.15s, transform 0.1s, border-color 0.15s;
-    }
-
-    .menu-tile:hover {
-      box-shadow: 0 4px 20px rgba(37,61,44,0.1);
-      transform: translateY(-1px);
-      border-color: var(--sage-mid);
     }
 
     .menu-tile-eyebrow {
@@ -183,56 +274,42 @@
       letter-spacing: 0.2em;
       text-transform: uppercase;
       color: var(--sage-mid);
-      margin-bottom: 0.35rem;
+      margin-bottom: 0.3rem;
     }
 
     .menu-tile h2 {
       font-family: 'Cormorant Garamond', Georgia, serif;
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       font-weight: 400;
       color: var(--forest);
       line-height: 1.1;
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.25rem;
     }
 
-    .menu-tile h2 em {
-      font-style: italic;
-      color: var(--sage-deep);
-    }
-
-    .menu-tile p {
-      font-size: 0.825rem;
-      color: var(--text-muted);
-    }
+    .menu-tile h2 em { font-style: italic; color: var(--sage-deep); }
+    .menu-tile p { font-size: 0.8rem; color: var(--text-muted); }
 
     .menu-tile .tile-cta {
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
-      margin-top: 0.75rem;
-      font-size: 0.75rem;
+      margin-top: 0.6rem;
+      font-size: 0.72rem;
       font-weight: 600;
       color: var(--sage-deep);
       letter-spacing: 0.05em;
       text-transform: uppercase;
-      transition: gap 0.2s;
     }
 
-    .menu-tile:hover .tile-cta { gap: 0.65rem; }
     .menu-tile .tile-cta::after { content: '→'; }
-
-    .menu-tile-icons {
-      font-size: 2rem;
-      flex-shrink: 0;
-      opacity: 0.6;
-    }
+    .menu-tile-icons { font-size: 1.75rem; flex-shrink: 0; opacity: 0.55; }
 
     /* ---- Divider ---- */
     .leaf-divider {
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      margin-bottom: 1rem;
+      margin-bottom: 0.875rem;
       color: var(--sage-mid);
     }
 
@@ -244,119 +321,20 @@
       background: var(--border);
     }
 
-    .leaf-divider span {
-      font-size: 0.85rem;
-      opacity: 0.7;
-    }
-
-    /* ---- Hero badge ---- */
-    .hero-badge {
-      border: 1px solid transparent;
-      border-top-color: var(--gold-warm);
-      border-bottom-color: var(--gold-warm);
-      padding: 0.875rem 0;
-      margin: 0 -5px 0.75rem;
-      padding-left: 5px;
-      padding-right: 5px;
-      display: inline-block;
-      width: calc(100% + 10px);
-      background: rgba(255, 255, 255, 0.0);
-      border-radius: 8px;
-    }
-
-    /* ---- Splash overlay — fixed over content ---- */
-    .splash {
-      position: fixed;
-      inset: 0;
-      z-index: 50;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 2rem;
-      pointer-events: all;
-      transition: opacity 0.6s ease, transform 0.6s ease;
-    }
-
-    .splash.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .splash-eyebrow {
-      font-size: 0.68rem;
-      letter-spacing: 0.28em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.7);
-      margin-bottom: 1rem;
-    }
-
-    .splash-title {
-      font-family: "Oooh Baby", cursive;
-      font-size: clamp(3rem, 12vw, 5rem);
-      font-weight: 100;
-      color: #ffffff;
-      line-height: 1.1;
-      margin-bottom: 0.75rem;
-      text-shadow: 0 2px 24px rgba(0,0,0,0.4);
-    }
-
-    .splash-title em {
-      font-style: italic;
-      color: #D3AF37;
-    }
-
-    .splash-sub {
-      font-size: 0.875rem;
-      color: rgba(255,255,255,0.65);
-      max-width: 28ch;
-      line-height: 1.6;
-      margin-bottom: 0;
-    }
-
-    .scroll-hint {
-      position: absolute;
-      bottom: 2.5rem;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.4rem;
-      color: rgba(255,255,255,0.45);
-      font-size: 0.65rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      white-space: nowrap;
-      animation: bounce 2s ease infinite;
-    }
-
-    .scroll-hint::after { content: '↓'; font-size: 1rem; }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50%       { transform: translateX(-50%) translateY(7px); }
-    }
-
-    /* ---- Content sits at top, revealed as splash fades ---- */
-    .content-panel {
-      background: transparent;
-      box-shadow: none;
-      position: relative;
-      z-index: 1;
-    }
+    .leaf-divider span { font-size: 0.85rem; opacity: 0.7; }
 
     @media (max-width: 480px) {
-      .seat-tile { padding: 1.5rem 1.25rem; min-height: 168px; }
-      .corner-number { font-size: 5rem; right: 1rem; }
+      .seat-tile { padding: 1.25rem; min-height: 160px; }
+      .corner-number { font-size: 4.5rem; right: 0.75rem; }
       .leaf-watermark { display: none; }
+      .content-panel { padding: 1.5rem 1rem 4rem; }
     }
   </style>
 </head>
 <body>
-    <img class="bg-image" src="background.jpg" alt="" />
-    <nav class="site-nav">
+
+  <!-- NAV -->
+  <nav class="site-nav">
     <a href="index.html" class="logo">✦ Jessica &amp; Jason</a>
     <button class="nav-toggle" id="navToggle" aria-label="Open menu">
       <span></span><span></span><span></span>
@@ -371,123 +349,104 @@
   </nav>
   <script>
     (function() {
-      var toggle = document.getElementById('navToggle');
-      var links  = document.getElementById('navLinks');
-      if (!toggle) return;
-      toggle.addEventListener('click', function() {
-        toggle.classList.toggle('open');
-        links.classList.toggle('open');
-      });
-      links.querySelectorAll('a').forEach(function(a) {
-        a.addEventListener('click', function() {
-          toggle.classList.remove('open');
-          links.classList.remove('open');
-        });
+      var t = document.getElementById('navToggle');
+      var l = document.getElementById('navLinks');
+      if (!t) return;
+      t.addEventListener('click', function() { t.classList.toggle('open'); l.classList.toggle('open'); });
+      l.querySelectorAll('a').forEach(function(a) {
+        a.addEventListener('click', function() { t.classList.remove('open'); l.classList.remove('open'); });
       });
     })();
   </script>
 
-  <!-- Splash — fixed overlay, fades out on scroll/tap -->
-  <div class="splash" id="splash">
+  <!-- SPLASH — full viewport, user scrolls naturally past it -->
+  <div class="splash">
     <p class="splash-eyebrow">Millwick · DTLA · September 5, 2026</p>
-    <p class="splash-title"><span>Today's</span> <em>Celebration</em></p>
+    <p class="splash-title">Today's <em>Celebration</em></p>
     <p class="splash-sub">Find your table, check out the menu, and play a few puzzles while the night unfolds.</p>
     <div class="scroll-hint">scroll</div>
   </div>
 
+  <!-- CONTENT PANEL — slides up naturally as user scrolls -->
   <div class="content-panel">
-  <div class="page-wrapper">
-    <div class="hero">
-      <!-- Botanical leaf watermark SVG -->
-      <svg class="leaf-watermark" width="180" height="220" viewBox="0 0 180 220" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M90 210 C90 210 20 160 20 90 C20 40 55 10 90 10 C125 10 160 40 160 90 C160 160 90 210 90 210Z" fill="#4a7c59"/>
-        <path d="M90 10 L90 210" stroke="#253d2c" stroke-width="1.5"/>
-        <path d="M90 60 C70 55 50 65 40 80" stroke="#253d2c" stroke-width="1" stroke-linecap="round"/>
-        <path d="M90 80 C75 72 58 78 48 92" stroke="#253d2c" stroke-width="1" stroke-linecap="round"/>
-        <path d="M90 100 C72 92 56 98 46 112" stroke="#253d2c" stroke-width="1" stroke-linecap="round"/>
-        <path d="M90 120 C108 112 126 120 136 135" stroke="#253d2c" stroke-width="1" stroke-linecap="round"/>
-        <path d="M90 80 C105 72 122 78 132 92" stroke="#253d2c" stroke-width="1" stroke-linecap="round"/>
-        <path d="M90 60 C110 55 130 65 140 80" stroke="#253d2c" stroke-width="1" stroke-linecap="round"/>
-        <!-- second smaller leaf -->
-        <path d="M148 185 C148 185 112 162 112 130 C112 108 130 96 148 96 C166 96 184 108 184 130 C184 162 148 185 148 185Z" fill="#4a7c59" opacity="0.6"/>
-        <path d="M148 96 L148 185" stroke="#253d2c" stroke-width="1"/>
-        <!-- third leaf -->
-        <path d="M30 175 C30 175 8 155 8 132 C8 115 18 106 30 106 C42 106 52 115 52 132 C52 155 30 175 30 175Z" fill="#4a7c59" opacity="0.5"/>
-        <path d="M30 106 L30 175" stroke="#253d2c" stroke-width="1"/>
-      </svg>
+    <div class="content-inner">
 
-      <div class="hero-badge">
-        <p class="hero-eyebrow">Millwick · DTLA</p>
-        <h1><span class="word-today">Today's</span> <em>Celebration</em></h1>
-      </div>
-      <p>Find your table, check out the menu and play some of our favorite daily puzzles while the night unfolds.</p>
-    </div>
-
-    <!-- Find Your Seat -->
-    <a href="find-your-seat.html" class="seat-tile">
-      <!-- Large botanical SVG in background -->
-      <div class="tile-leaves">
-        <svg width="300" height="280" viewBox="0 0 300 280" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M150 270 C150 270 30 200 30 110 C30 45 88 8 150 8 C212 8 270 45 270 110 C270 200 150 270 150 270Z" fill="#b8d8a8"/>
-          <path d="M150 8 L150 270" stroke="#4a7c59" stroke-width="2"/>
-          <path d="M150 60 C118 54 88 68 70 90" stroke="#4a7c59" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M150 90 C122 80 94 90 76 112" stroke="#4a7c59" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M150 120 C120 108 92 118 74 140" stroke="#4a7c59" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M150 150 C178 138 208 150 226 172" stroke="#4a7c59" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M150 90 C178 80 206 90 224 112" stroke="#4a7c59" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M150 60 C182 54 212 68 230 90" stroke="#4a7c59" stroke-width="1.5" stroke-linecap="round"/>
-          <ellipse cx="70" cy="220" rx="40" ry="52" fill="#8ab890" transform="rotate(-25 70 220)" opacity="0.8"/>
-          <path d="M70 168 L70 272" stroke="#4a7c59" stroke-width="1.2" transform="rotate(-25 70 220)"/>
-          <ellipse cx="232" cy="215" rx="30" ry="45" fill="#8ab890" transform="rotate(20 232 215)" opacity="0.7"/>
-          <path d="M232 170 L232 260" stroke="#4a7c59" stroke-width="1.2" transform="rotate(20 232 215)"/>
+      <div class="hero">
+        <svg class="leaf-watermark" width="160" height="200" viewBox="0 0 180 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M90 210 C90 210 20 160 20 90 C20 40 55 10 90 10 C125 10 160 40 160 90 C160 160 90 210 90 210Z" fill="#4a7c59"/>
+          <path d="M90 10 L90 210" stroke="#253d2c" stroke-width="1.5"/>
+          <path d="M90 60 C70 55 50 65 40 80" stroke="#253d2c" stroke-width="1" stroke-linecap="round"/>
+          <path d="M90 80 C75 72 58 78 48 92" stroke="#253d2c" stroke-width="1" stroke-linecap="round"/>
+          <path d="M90 100 C72 92 56 98 46 112" stroke="#253d2c" stroke-width="1" stroke-linecap="round"/>
+          <path d="M90 80 C105 72 122 78 132 92" stroke="#253d2c" stroke-width="1" stroke-linecap="round"/>
+          <path d="M90 60 C110 55 130 65 140 80" stroke="#253d2c" stroke-width="1" stroke-linecap="round"/>
         </svg>
+        <div class="hero-badge">
+          <p class="hero-eyebrow">Millwick · DTLA</p>
+          <h1>Today's <em>Celebration</em></h1>
+        </div>
+        <p class="desc">Find your table, check out the menu and play some of our favorite daily puzzles while the night unfolds.</p>
       </div>
 
-      <p class="seat-tile-eyebrow">Wedding Day</p>
-      <h2>Find Your <em>Seat</em></h2>
-      <p>Search by name to find your table number</p>
-      <span class="tile-cta">Find my table</span>
-      <div class="corner-number" id="cornerNum">7</div>
-    </a>
+      <!-- Find Your Seat -->
+      <a href="find-your-seat.html" class="seat-tile">
+        <div class="tile-leaves">
+          <svg width="300" height="280" viewBox="0 0 300 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M150 270 C150 270 30 200 30 110 C30 45 88 8 150 8 C212 8 270 45 270 110 C270 200 150 270 150 270Z" fill="#b8d8a8"/>
+            <path d="M150 8 L150 270" stroke="#4a7c59" stroke-width="2"/>
+            <path d="M150 60 C118 54 88 68 70 90" stroke="#4a7c59" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M150 90 C122 80 94 90 76 112" stroke="#4a7c59" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M150 120 C120 108 92 118 74 140" stroke="#4a7c59" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M150 150 C178 138 208 150 226 172" stroke="#4a7c59" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M150 90 C178 80 206 90 224 112" stroke="#4a7c59" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M150 60 C182 54 212 68 230 90" stroke="#4a7c59" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <p class="seat-tile-eyebrow">Wedding Day</p>
+        <h2>Find Your <em>Seat</em></h2>
+        <p>Search by name to find your table number</p>
+        <span class="tile-cta">Find my table</span>
+        <div class="corner-number" id="cornerNum">7</div>
+      </a>
 
-    <!-- Menu tile -->
-    <a href="menu.html" class="menu-tile">
-      <div class="menu-tile-left">
-        <p class="menu-tile-eyebrow">Tonight's</p>
-        <h2><em>Menu</em></h2>
-        <p>Dinner & Drinks</p>
-        <span class="tile-cta">View menu</span>
+      <!-- Menu tile -->
+      <a href="menu.html" class="menu-tile">
+        <div class="menu-tile-left">
+          <p class="menu-tile-eyebrow">Tonight's</p>
+          <h2><em>Menu</em></h2>
+          <p>Dinner &amp; Drinks</p>
+          <span class="tile-cta">View menu</span>
+        </div>
+        <div class="menu-tile-icons">🍽&nbsp;&nbsp;🍸</div>
+      </a>
+
+      <div class="leaf-divider"><span>🌿</span></div>
+      <p class="section-label">Play now</p>
+
+      <div class="game-grid">
+        <a href="wordle.html" class="game-card">
+          <div class="icon icon-wordle">🟩</div>
+          <div>
+            <h2>Wordle</h2>
+            <p>Guess the 5-letter word in 6 tries.</p>
+          </div>
+        </a>
+        <a href="connections.html" class="game-card">
+          <div class="icon icon-connect">🔵</div>
+          <div>
+            <h2>Connections</h2>
+            <p>Find four groups of four words that share something in common.</p>
+          </div>
+        </a>
+        <a href="crossword.html" class="game-card">
+          <div class="icon icon-cross">✏️</div>
+          <div>
+            <h2>Mini Crossword</h2>
+            <p>A 5×5 crossword puzzle. Across and down clues to fill every square.</p>
+          </div>
+        </a>
       </div>
-      <div class="menu-tile-icons">🍽&nbsp;&nbsp;🍸</div>
-    </a>
 
-    <div class="leaf-divider"><span>🌿</span></div>
-    <p class="section-label">Play now</p>
-
-    <div class="game-grid">
-      <a href="wordle.html" class="game-card">
-        <div class="icon icon-wordle">🟩</div>
-        <div>
-          <h2>Wordle</h2>
-          <p>Guess the 5-letter word in 6 tries.</p>
-        </div>
-      </a>
-
-      <a href="connections.html" class="game-card">
-        <div class="icon icon-connect">🔵</div>
-        <div>
-          <h2>Connections</h2>
-          <p>Find four groups of four words that share something in common.</p>
-        </div>
-      </a>
-
-      <a href="crossword.html" class="game-card">
-        <div class="icon icon-cross">✏️</div>
-        <div>
-          <h2>Mini Crossword</h2>
-          <p>A 5×5 crossword puzzle. Across and down clues to fill every square.</p>
-        </div>
-      </a>
     </div>
   </div>
 
@@ -503,36 +462,6 @@
         el.style.opacity = '1';
       }, 400);
     }, 3200);
-  </script>
-  </div>
-  <script>
-    (function() {
-      var splash = document.getElementById('splash');
-      if (!splash) return;
-      var dismissed = false;
-
-      function dismiss() {
-        if (dismissed) return;
-        dismissed = true;
-        splash.classList.add('hidden');
-        // Remove from DOM after fade completes so it can never be scrolled back to
-        setTimeout(function() {
-          if (splash.parentNode) splash.parentNode.removeChild(splash);
-        }, 650);
-      }
-
-      // Dismiss on any scroll
-      window.addEventListener('scroll', dismiss, { passive: true, once: true });
-      // Also dismiss on tap/click for users who don't scroll first
-      splash.addEventListener('click', dismiss);
-      splash.addEventListener('touchstart', function(e) {
-        // Only dismiss on upward swipe, not tap
-        var startY = e.touches[0].clientY;
-        splash.addEventListener('touchend', function(e2) {
-          if (e2.changedTouches[0].clientY < startY - 20) dismiss();
-        }, { once: true });
-      }, { passive: true });
-    })();
   </script>
 </body>
 </html>
