@@ -19,60 +19,33 @@
        Scroll container: intercepts scroll events only
        ============================================================ */
 
-    /* Fake scroll container — just to capture scroll events */
-    .scroll-capture {
-      position: fixed;
-      inset: 0;
-      overflow-y: scroll;
-      z-index: 15; /* above content, below splash */
-      pointer-events: none; /* doesn't block taps */
-    }
-
-    .scroll-capture-inner {
-      height: 300vh; /* tall enough to scroll */
-    }
-
-    /* Splash: fixed, moves up via JS transform as user scrolls */
+    /* Splash: normal flow, user physically scrolls past it */
     .splash {
-      position: fixed;
-      inset: 0;
-      z-index: 20;
+      height: 100dvh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
       padding: 2rem;
-      pointer-events: all;
-      will-change: transform, opacity;
-    }
-
-    .splash.dismissed {
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.4s ease;
+      position: relative;
+      z-index: 2;
+      /* No transition needed — physically scrolls off screen */
     }
 
     /* Spacer not needed */
     .splash-spacer { display: none !important; }
 
-    /* Content panel: fixed, slides up from below via JS transform */
+    /* Content panel: normal flow, sits below splash */
     .content-panel {
-      position: fixed;
-      inset: 0;
-      z-index: 5;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
+      position: relative;
+      z-index: 1;
       background: transparent;
-      pointer-events: none;
-      will-change: transform, opacity;
-      /* Starts below viewport */
-      transform: translateY(100vh);
+      min-height: 100vh;
     }
 
     .content-panel.visible {
-      pointer-events: all;
-      overflow-y: auto;
+      /* nothing extra needed — already visible */
     }
 
     .content-panel-inner {
@@ -419,11 +392,6 @@
     })();
   </script>
 
-  <!-- SCROLL CAPTURE — intercepts scroll events, invisible -->
-  <div class="scroll-capture" id="scrollCapture">
-    <div class="scroll-capture-inner"></div>
-  </div>
-
   <!-- SPLASH — fixed overlay, fades out on dismiss -->
   <div class="splash" id="splash">
     <p class="splash-eyebrow">Millwick · DTLA · September 5, 2026</p>
@@ -435,23 +403,6 @@
   <!-- CONTENT PANEL — fixed, always rendered, fades in on dismiss -->
   <div class="content-panel" id="contentPanel">
     <div class="content-panel-inner">
-
-      <div class="hero">
-        <svg class="leaf-watermark" width="160" height="200" viewBox="0 0 180 220" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M90 210 C90 210 20 160 20 90 C20 40 55 10 90 10 C125 10 160 40 160 90 C160 160 90 210 90 210Z" fill="#4a7c59"/>
-          <path d="M90 10 L90 210" stroke="#253d2c" stroke-width="1.5"/>
-          <path d="M90 60 C70 55 50 65 40 80" stroke="#253d2c" stroke-width="1" stroke-linecap="round"/>
-          <path d="M90 80 C75 72 58 78 48 92" stroke="#253d2c" stroke-width="1" stroke-linecap="round"/>
-          <path d="M90 100 C72 92 56 98 46 112" stroke="#253d2c" stroke-width="1" stroke-linecap="round"/>
-          <path d="M90 80 C105 72 122 78 132 92" stroke="#253d2c" stroke-width="1" stroke-linecap="round"/>
-          <path d="M90 60 C110 55 130 65 140 80" stroke="#253d2c" stroke-width="1" stroke-linecap="round"/>
-        </svg>
-        <div class="hero-badge">
-          <p class="hero-eyebrow">Millwick · DTLA</p>
-          <h1>Today's <em>Celebration</em></h1>
-        </div>
-        <p class="desc">Find your table, check out the menu and play some of our favorite daily puzzles while the night unfolds.</p>
-      </div>
 
       <!-- Find Your Seat -->
       <a href="find-your-seat.html" class="seat-tile">
@@ -529,64 +480,54 @@
       }, 400);
     }, 3200);
 
-    // ── Parallax scroll reveal ──
-    // Scroll capture intercepts scroll — splash moves UP, content slides UP from below.
-    // Both driven by JS transforms — no DOM reflow, no repaint, no flicker.
+    // ── Smooth splash dismiss ──
+    // Trigger only when user has scrolled almost completely past the splash.
+    // At that point scrollY ≈ splashH, so switching splash to fixed and
+    // compensating scrollY by splashH lands exactly at 0 — no visible jump.
     (function() {
-      var splash        = document.getElementById('splash');
-      var panel         = document.getElementById('contentPanel');
-      var scrollCapture = document.getElementById('scrollCapture');
-      var done          = false;
-      var pageLoadTime  = Date.now();
-      var vh            = window.innerHeight;
+      var splash       = document.getElementById('splash');
+      var done         = false;
+      var pageLoadTime = Date.now();
 
-      // Enable scroll capture
-      scrollCapture.style.pointerEvents = 'all';
+      function dismiss() {
+        if (done) return;
+        done = true;
+        window.removeEventListener('scroll', onScroll);
 
-      function easeOut(t) {
-        return 1 - Math.pow(1 - t, 3);
+        var splashH = splash.offsetHeight;
+
+        // Step 1: make invisible FIRST before any layout change
+        splash.style.opacity       = '0';
+        splash.style.pointerEvents = 'none';
+
+        // Step 2: switch to fixed in the same frame — already invisible so no flash
+        splash.style.position = 'fixed';
+        splash.style.top      = '0';
+        splash.style.left     = '0';
+        splash.style.right    = '0';
+        splash.style.bottom   = '0';
+        splash.style.zIndex   = '20';
+
+        // Step 3: compensate scroll position
+        window.scrollTo({ top: Math.max(0, window.scrollY - splashH), behavior: 'instant' });
+
+        // Step 4: remove from DOM after a short delay
+        setTimeout(function() {
+          if (splash.parentNode) splash.parentNode.removeChild(splash);
+        }, 100);
       }
 
       function onScroll() {
-        if (done) return;
-
-        var scrollTop  = scrollCapture.scrollTop;
-        var maxScroll  = scrollCapture.scrollHeight - vh;
-        var progress   = Math.min(scrollTop / maxScroll, 1); // 0 → 1
-        var eased      = easeOut(progress);
-
-        // Splash: translate upward as user scrolls (moves off screen top)
-        splash.style.transform = 'translateY(' + (-eased * vh) + 'px)';
-
-        // Content panel: slide up from below (starts at vh, ends at 0)
-        panel.style.transform = 'translateY(' + ((1 - eased) * vh) + 'px)';
-
-        // Also fade splash out as it moves
-        splash.style.opacity = String(1 - eased);
-
-        // Check trigger: 80% scrolled AND 2 seconds on page
-        var timeOnPage     = Date.now() - pageLoadTime;
-        var scrolledEnough = progress >= 0.8;
+        var timeOnPage = Date.now() - pageLoadTime;
+        var splashH    = splash.offsetHeight;
+        // Trigger when scrolled 95% past the splash AND waited 2s
+        // At 95%, scrollY ≈ splashH so the scroll compensation is near-zero
+        var scrolledEnough = window.scrollY > splashH * 0.95;
         var waitedEnough   = timeOnPage > 2000;
-
-        if (scrolledEnough && waitedEnough) {
-          done = true;
-          scrollCapture.removeEventListener('scroll', onScroll);
-
-          // Snap both to final position cleanly
-          splash.classList.add('dismissed');
-          panel.style.transform = 'translateY(0)';
-          panel.classList.add('visible');
-
-          // Brief delay then hide scroll capture and clean up splash
-          setTimeout(function() {
-            scrollCapture.style.display = 'none';
-            if (splash.parentNode) splash.parentNode.removeChild(splash);
-          }, 500);
-        }
+        if (scrolledEnough && waitedEnough) dismiss();
       }
 
-      scrollCapture.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('scroll', onScroll, { passive: true });
     })();
   </script>
 </body>
