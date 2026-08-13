@@ -13,15 +13,26 @@
     
 
     /* ============================================================
-       BACKGROUND — on html element, never moves no matter what
+       LAYOUT — two fixed layers, independent scroll container
+       Splash: fixed, z-index 20, fades out
+       Content: fixed, z-index 5, always rendered, never moves
+       Scroll container: intercepts scroll events only
        ============================================================ */
 
-    /* The trick: put background on html, lock body, scroll an inner div */
+    /* Fake scroll container — just to capture scroll events */
+    .scroll-capture {
+      position: fixed;
+      inset: 0;
+      overflow-y: scroll;
+      z-index: 15; /* above content, below splash */
+      pointer-events: none; /* doesn't block taps */
+    }
 
-    /* ============================================================
-       SPLASH — fixed overlay on top of content, both browsers
-       Content panel is already at scroll position 0 underneath
-       ============================================================ */
+    .scroll-capture-inner {
+      height: 300vh; /* tall enough to scroll */
+    }
+
+    /* Splash: fixed, moves up via JS transform as user scrolls */
     .splash {
       position: fixed;
       inset: 0;
@@ -32,95 +43,45 @@
       justify-content: center;
       text-align: center;
       padding: 2rem;
-      /* Transition only opacity — no layout changes */
-      transition: opacity 0.7s ease;
       pointer-events: all;
+      will-change: transform, opacity;
     }
 
     .splash.dismissed {
       opacity: 0;
       pointer-events: none;
+      transition: opacity 0.4s ease;
     }
 
-    /* Spacer not needed anymore — content is already at top */
+    /* Spacer not needed */
     .splash-spacer { display: none !important; }
 
-    .splash-eyebrow {
-      font-size: 0.68rem;
-      letter-spacing: 0.28em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.65);
-      margin-bottom: 1rem;
-    }
-
-    .splash-title {
-      font-family: "Oooh Baby", cursive;
-      font-size: clamp(2.8rem, 12vw, 5rem);
-      font-weight: 100;
-      color: #ffffff;
-      line-height: 1.15;
-      margin-bottom: 0.75rem;
-      text-shadow: 0 2px 24px rgba(0,0,0,0.5);
-    }
-
-    .splash-title em {
-      font-style: italic;
-      color: #D3AF37;
-    }
-
-    .splash-sub {
-      font-size: 0.875rem;
-      color: rgba(255,255,255,0.6);
-      max-width: 28ch;
-      line-height: 1.6;
-    }
-
-    /* Bouncing scroll indicator */
-    .scroll-hint {
-      position: absolute;
-      bottom: 2.5rem;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.4rem;
-      color: rgba(255,255,255,0.4);
-      font-size: 0.6rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      white-space: nowrap;
-      animation: bounce 2s ease infinite;
-    }
-
-    .scroll-hint::after {
-      content: '↓';
-      font-size: 1rem;
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50%       { transform: translateX(-50%) translateY(8px); }
-    }
-
-    /* ============================================================
-       CONTENT PANEL
-       ============================================================ */
+    /* Content panel: fixed, slides up from below via JS transform */
     .content-panel {
-      background: transparent;
-      border-radius: 24px 24px 0 0;
-      position: relative;
+      position: fixed;
+      inset: 0;
       z-index: 5;
-      padding: 2rem 1rem 4rem;
-      will-change: transform;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      background: transparent;
+      pointer-events: none;
+      will-change: transform, opacity;
+      /* Starts below viewport */
+      transform: translateY(100vh);
     }
 
-    .content-inner {
+    .content-panel.visible {
+      pointer-events: all;
+      overflow-y: auto;
+    }
+
+    .content-panel-inner {
       max-width: 600px;
       margin: 0 auto;
+      padding: 2rem 1rem 4rem;
     }
 
-    /* ---- Hero inside content panel ---- */
+    /* ---- Hero ---- */
     .hero {
       padding: 0 0 1.5rem;
       position: relative;
@@ -140,7 +101,6 @@
       margin-top: 0.5rem;
     }
 
-    /* ---- Hero badge ---- */
     .hero-badge {
       border: 1px solid transparent;
       border-top-color: var(--gold-warm);
@@ -168,7 +128,6 @@
       color: #D3AF37;
     }
 
-    /* ---- Leaf SVG watermark ---- */
     .leaf-watermark {
       position: absolute;
       right: -0.5rem;
@@ -177,7 +136,7 @@
       pointer-events: none;
     }
 
-    /* ---- Find Your Seat tile ---- */
+    /* ---- Seat tile ---- */
     .seat-tile {
       display: block;
       text-decoration: none;
@@ -266,7 +225,7 @@
       text-decoration: none;
       border-radius: 14px;
       border: 1px solid var(--border);
-      background: rgba(255,255,255,0.82);
+      background: rgba(255, 255, 255, 0.5);
       padding: 1.25rem 1.5rem;
       margin-bottom: 1rem;
     }
@@ -325,11 +284,61 @@
 
     .leaf-divider span { font-size: 0.85rem; opacity: 0.7; }
 
+    .splash-eyebrow {
+      font-size: 0.68rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 1rem;
+    }
+
+    .splash-title {
+      font-family: "Oooh Baby", cursive;
+      font-size: clamp(2.8rem, 12vw, 5rem);
+      font-weight: 100;
+      color: #ffffff;
+      line-height: 1.15;
+      margin-bottom: 0.75rem;
+      text-shadow: 0 2px 24px rgba(0,0,0,0.5);
+    }
+
+    .splash-title em { font-style: italic; color: #D3AF37; }
+
+    .splash-sub {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.6);
+      max-width: 28ch;
+      line-height: 1.6;
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      color: rgba(255,255,255,0.4);
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      animation: bounce 2s ease infinite;
+    }
+
+    .scroll-hint::after { content: '↓'; font-size: 1rem; }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50%       { transform: translateX(-50%) translateY(8px); }
+    }
+
     @media (max-width: 480px) {
       .seat-tile { padding: 1.25rem; min-height: 160px; }
       .corner-number { font-size: 4.5rem; right: 0.75rem; }
       .leaf-watermark { display: none; }
-      .content-panel { padding: 1.5rem 1rem 4rem; }
     }
   </style>
 </head>
@@ -410,19 +419,22 @@
     })();
   </script>
 
-  <!-- SPLASH — full viewport, user scrolls naturally past it -->
+  <!-- SCROLL CAPTURE — intercepts scroll events, invisible -->
+  <div class="scroll-capture" id="scrollCapture">
+    <div class="scroll-capture-inner"></div>
+  </div>
+
+  <!-- SPLASH — fixed overlay, fades out on dismiss -->
   <div class="splash" id="splash">
     <p class="splash-eyebrow">Millwick · DTLA · September 5, 2026</p>
     <p class="splash-title">Today's <em>Celebration</em></p>
     <p class="splash-sub">Find your table, check out the menu, and play a few puzzles while the night unfolds.</p>
     <div class="scroll-hint">scroll</div>
   </div>
-  <!-- Spacer only used on Chrome when splash is fixed -->
-  <div class="splash-spacer" id="splashSpacer"></div>
 
-  <!-- CONTENT PANEL — slides up naturally as user scrolls -->
-  <div class="content-panel">
-    <div class="content-inner">
+  <!-- CONTENT PANEL — fixed, always rendered, fades in on dismiss -->
+  <div class="content-panel" id="contentPanel">
+    <div class="content-panel-inner">
 
       <div class="hero">
         <svg class="leaf-watermark" width="160" height="200" viewBox="0 0 180 220" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -504,6 +516,7 @@
   </div>
 
   <script>
+    // Corner number cycling
     const nums = [3, 7, 12, 5, 1, 9, 4, 8, 2, 6];
     let ni = 0;
     const el = document.getElementById('cornerNum');
@@ -516,40 +529,64 @@
       }, 400);
     }, 3200);
 
-    // ── Splash dismiss — overlay fades, no scroll jump, no repaint ──
-    // Splash is position:fixed so content panel is already at scrollY:0 beneath it.
-    // Dismiss = pure CSS opacity transition. Nothing moves. Nothing repaints.
+    // ── Parallax scroll reveal ──
+    // Scroll capture intercepts scroll — splash moves UP, content slides UP from below.
+    // Both driven by JS transforms — no DOM reflow, no repaint, no flicker.
     (function() {
-      var splash       = document.getElementById('splash');
-      var done         = false;
-      var pageLoadTime = Date.now();
+      var splash        = document.getElementById('splash');
+      var panel         = document.getElementById('contentPanel');
+      var scrollCapture = document.getElementById('scrollCapture');
+      var done          = false;
+      var pageLoadTime  = Date.now();
+      var vh            = window.innerHeight;
 
-      function dismiss() {
-        if (done) return;
-        done = true;
-        window.removeEventListener('scroll', onScroll);
+      // Enable scroll capture
+      scrollCapture.style.pointerEvents = 'all';
 
-        // Scroll back to top instantly (in case user scrolled)
-        // so content panel is fully visible at position 0
-        window.scrollTo({ top: 0, behavior: 'instant' });
-
-        // Fade out the fixed overlay — content beneath is already there
-        splash.classList.add('dismissed');
-
-        // Remove from DOM after CSS transition completes
-        setTimeout(function() {
-          if (splash.parentNode) splash.parentNode.removeChild(splash);
-        }, 800);
+      function easeOut(t) {
+        return 1 - Math.pow(1 - t, 3);
       }
 
       function onScroll() {
+        if (done) return;
+
+        var scrollTop  = scrollCapture.scrollTop;
+        var maxScroll  = scrollCapture.scrollHeight - vh;
+        var progress   = Math.min(scrollTop / maxScroll, 1); // 0 → 1
+        var eased      = easeOut(progress);
+
+        // Splash: translate upward as user scrolls (moves off screen top)
+        splash.style.transform = 'translateY(' + (-eased * vh) + 'px)';
+
+        // Content panel: slide up from below (starts at vh, ends at 0)
+        panel.style.transform = 'translateY(' + ((1 - eased) * vh) + 'px)';
+
+        // Also fade splash out as it moves
+        splash.style.opacity = String(1 - eased);
+
+        // Check trigger: 80% scrolled AND 2 seconds on page
         var timeOnPage     = Date.now() - pageLoadTime;
-        var scrolledEnough = window.scrollY > window.innerHeight * 0.8;
+        var scrolledEnough = progress >= 0.8;
         var waitedEnough   = timeOnPage > 2000;
-        if (scrolledEnough && waitedEnough) dismiss();
+
+        if (scrolledEnough && waitedEnough) {
+          done = true;
+          scrollCapture.removeEventListener('scroll', onScroll);
+
+          // Snap both to final position cleanly
+          splash.classList.add('dismissed');
+          panel.style.transform = 'translateY(0)';
+          panel.classList.add('visible');
+
+          // Brief delay then hide scroll capture and clean up splash
+          setTimeout(function() {
+            scrollCapture.style.display = 'none';
+            if (splash.parentNode) splash.parentNode.removeChild(splash);
+          }, 500);
+        }
       }
 
-      window.addEventListener('scroll', onScroll, { passive: true });
+      scrollCapture.addEventListener('scroll', onScroll, { passive: true });
     })();
   </script>
 </body>
