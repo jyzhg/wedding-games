@@ -13,12 +13,24 @@
    This works on both Chrome and Safari mobile — no CSS background needed.
    ============================================================ */
 html {
-  /* Background set by JS using screen.height — works on both Chrome and Safari */
-  background: transparent;
+  /* Background set by JS — fallback color matches the image so no white flash */
+  background: #2a2420;
   min-height: 100%;
+  /* Prevent Chrome pull-to-refresh and bounce that shifts content */
+  overscroll-behavior: none;
 }
 
-:root {
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: transparent;
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+  /* Prevent overscroll bounce on Chrome mobile */
+  overscroll-behavior: none;
+}
   --sage-pale:    #eef2ec;
   --sage-soft:    #d6e2d0;
   --sage-mid:     #8aab7e;
@@ -36,16 +48,6 @@ html {
   --radius:       8px;
   --radius-lg:    14px;
   --nav-h:        52px;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: transparent;
-  color: var(--text);
-  min-height: 100vh;
-  line-height: 1.5;
-  -webkit-text-size-adjust: 100%;
-  overflow-x: hidden;
 }
 
 /* ============================================================
@@ -233,7 +235,7 @@ body {
 .keyboard {
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  background: var(--bg);
+  background: rgba(238, 241, 235, 0.95);
   border-top: 1px solid var(--border);
   padding: 8px 4px 12px;
   display: flex;

@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Oooh+Baby&display=swap" rel="stylesheet">
   <style>
+    html, body { background: #1a2a1e; }
 
     
 
@@ -494,35 +495,49 @@
         done = true;
         window.removeEventListener('scroll', onScroll);
 
-        var splashH = splash.offsetHeight;
+        var panel = document.querySelector('.content-panel');
 
-        // Step 1: make invisible FIRST before any layout change
+        // 1. Snapshot exactly where the content panel is on screen right now
+        var panelTop = panel.getBoundingClientRect().top;
+
+        // 2. Hide splash instantly — no reflow yet
         splash.style.opacity       = '0';
         splash.style.pointerEvents = 'none';
+        splash.style.position      = 'fixed';
+        splash.style.inset         = '0';
 
-        // Step 2: switch to fixed in the same frame — already invisible so no flash
-        splash.style.position = 'fixed';
-        splash.style.top      = '0';
-        splash.style.left     = '0';
-        splash.style.right    = '0';
-        splash.style.bottom   = '0';
-        splash.style.zIndex   = '20';
+        // 3. Freeze content panel at its current visual position using fixed+top
+        //    This means removing the splash won't cause any jump
+        panel.style.position  = 'fixed';
+        panel.style.top       = panelTop + 'px';
+        panel.style.left      = '0';
+        panel.style.right     = '0';
+        panel.style.bottom    = '0';
+        panel.style.overflowY = 'auto';
 
-        // Step 3: compensate scroll position
-        window.scrollTo({ top: Math.max(0, window.scrollY - splashH), behavior: 'instant' });
+        // 4. Remove splash — panel is fixed so page height change has no effect
+        if (splash.parentNode) splash.parentNode.removeChild(splash);
 
-        // Step 4: remove from DOM after a short delay
+        // 5. Animate panel gliding up to its final position (top: 0)
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            panel.style.transition = 'top 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            panel.style.top        = '0';
+          });
+        });
+
+        // 6. Clean up after animation
         setTimeout(function() {
-          if (splash.parentNode) splash.parentNode.removeChild(splash);
-        }, 100);
+          panel.style.transition = '';
+        }, 500);
       }
 
       function onScroll() {
-        var timeOnPage = Date.now() - pageLoadTime;
-        var splashH    = splash.offsetHeight;
-        // Trigger when scrolled 95% past the splash AND waited 2s
-        // At 95%, scrollY ≈ splashH so the scroll compensation is near-zero
-        var scrolledEnough = window.scrollY > splashH * 0.95;
+        var timeOnPage     = Date.now() - pageLoadTime;
+        var splashH        = splash.offsetHeight;
+        // Trigger at 88% — enough that panel is well into view
+        // but not so late that the snap distance is zero (boring)
+        var scrolledEnough = window.scrollY > splashH * 0.88;
         var waitedEnough   = timeOnPage > 2000;
         if (scrolledEnough && waitedEnough) dismiss();
       }
