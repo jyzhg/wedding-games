@@ -95,16 +95,17 @@
       border-top: 1px solid rgba(255, 255, 255, 0.12);
     }
 
-    /* Unused keys stay white */
+    /* Unused keys: mid sage, white lettering */
     .key {
-      background: #ffffff;
-      color: #1e2e22;
+      background: #3d6349;
+      color: #ffffff;
     }
 
+    /* Lightness ordering carries the meaning:
+       absent (darkest) < unused < correct (lightest), gold for present */
     .key.correct { background: #5d9e6a; color: #ffffff; }
     .key.present { background: #d4af37; color: #2b2205; }
-    /* Ruled-out letters: greyed right down so the white keys still read as available */
-    .key.absent  { background: #b6bfb4; color: rgba(30, 46, 34, 0.5); }
+    .key.absent  { background: #1c2e21; color: rgba(255, 255, 255, 0.35); }
 
     .result-banner.win {
       background: rgba(93, 158, 106, 0.25);
@@ -227,6 +228,7 @@
   </div>
 
   <script src="puzzles.js"></script>
+  <script src="words.js"></script>
   <script>
     // Pick randomly from words array
     const TARGET = PUZZLES.wordle.words[Math.floor(Math.random() * PUZZLES.wordle.words.length)].toUpperCase();
@@ -282,6 +284,15 @@
     });
 
     let currentRow = 0, currentCol = 0, guess = [], gameOver = false;
+
+    // Hard mode: letters confirmed in the right spot must stay in that spot.
+    // Index = position, value = the confirmed letter (or null).
+    const lockedPositions = Array(COLS).fill(null);
+
+    // Centre the active row once layout has settled, and again if the viewport
+    // changes — rotation, or the address bar showing/hiding on mobile.
+    window.addEventListener('load',   function() { centerCurrentRow(false); });
+    window.addEventListener('resize', function() { centerCurrentRow(false); });
     const letterStates = {};
 
     document.addEventListener("keydown", e => {
@@ -314,6 +325,26 @@
       if (currentCol < COLS) { shake(currentRow); toast("Not enough letters"); return; }
       const word = guess.join("");
 
+      // Reject anything that isn't a real word.
+      // MAOMI is whitelisted so the easter egg still works.
+      // If words.js somehow fails to load, validation is skipped rather than
+      // locking every guest out of the game.
+      const dictLoaded = (typeof VALID_WORDS !== "undefined");
+      if (dictLoaded && word !== "MAOMI" && !VALID_WORDS.has(word)) {
+        shake(currentRow);
+        toast("Not in word list");
+        return;
+      }
+
+      // Hard mode: any letter already confirmed in place must be reused there.
+      for (let i = 0; i < COLS; i++) {
+        if (lockedPositions[i] && word[i] !== lockedPositions[i]) {
+          shake(currentRow);
+          toast(ordinal(i + 1) + " letter must be " + lockedPositions[i]);
+          return;
+        }
+      }
+
       // Any new guess clears the previous message
       hideMessage();
 
@@ -323,6 +354,12 @@
       }
 
       const result = evaluate(word, TARGET);
+
+      // Lock in any newly confirmed positions for subsequent guesses
+      result.forEach((state, i) => {
+        if (state === "correct") lockedPositions[i] = word[i];
+      });
+
       reveal(currentRow, result, word);
     }
 
@@ -370,6 +407,7 @@
         currentRow++;
         currentCol = 0;
         guess = [];
+        centerCurrentRow(true);
         if (won) {
           gameOver = true;
           const msgs = ["Genius!", "Magnificent!", "Impressive!", "Splendid!", "Great!", "Phew!"];
@@ -381,6 +419,30 @@
           showResult("lose", "The word was " + TARGET + ". Better luck next time!");
         }
       }, COLS * 80 + 300);
+    }
+
+    // Keep the row being typed in the middle of the space that is actually
+    // visible — i.e. between the sticky nav and the fixed keyboard, not the
+    // middle of the viewport, which sits behind the keyboard on short screens.
+    function centerCurrentRow(smooth) {
+      if (currentRow >= ROWS) return;
+      const rowEl = tiles[currentRow][0].parentNode;
+      const nav   = document.querySelector('.site-nav');
+      const kbd   = document.getElementById('keyboard');
+      const navH  = nav ? nav.offsetHeight : 0;
+      const kbdH  = kbd ? kbd.offsetHeight : 0;
+
+      const visibleCenter = navH + (window.innerHeight - navH - kbdH) / 2;
+      const rect      = rowEl.getBoundingClientRect();
+      const rowCenter = rect.top + rect.height / 2;
+      const delta     = rowCenter - visibleCenter;
+
+      if (Math.abs(delta) < 4) return;   // already close enough
+      window.scrollBy({ top: delta, behavior: smooth ? 'smooth' : 'auto' });
+    }
+
+    function ordinal(n) {
+      return ["1st", "2nd", "3rd", "4th", "5th"][n - 1] || (n + "th");
     }
 
     function shake(row) {
