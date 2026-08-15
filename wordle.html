@@ -63,7 +63,7 @@
        in sunlight and for colour-blind guests:
        absent (darkest) < base < correct (lightest), gold for present. */
     .tile.correct { background: #5d9e6a; border-color: #5d9e6a; color: #0f1c13; }
-    .tile.present { background: var(--gold-warm); border-color: var(--gold-warm); color: #2b1e08; }
+    .tile.present { background: #d4af37; border-color: #d4af37; color: #2b2205; }
     .tile.absent  { background: #16241a; border-color: #16241a; color: rgba(232,240,228,0.45); }
     .tile.flip    { animation: flipIn 0.25s ease forwards; }
     .tile.shake   { animation: shake 0.4s ease; }
@@ -89,20 +89,22 @@
     .page-title    { color: #e8f0e4; }
     .page-subtitle { color: rgba(200,220,196,0.7); }
 
+    /* Bar stays dark sage; the keys themselves remain white */
     .keyboard {
       background: rgba(22, 36, 26, 0.95);
       border-top: 1px solid rgba(255, 255, 255, 0.12);
     }
 
+    /* Unused keys stay white */
     .key {
-      background: rgba(255, 255, 255, 0.14);
-      color: #e8f0e4;
+      background: #ffffff;
+      color: #1e2e22;
     }
 
-    /* Same lightness ordering as the tiles: absent < base < correct */
-    .key.correct { background: #5d9e6a; color: #0f1c13; }
-    .key.present { background: var(--gold-warm); color: #2b1e08; }
-    .key.absent  { background: rgba(255, 255, 255, 0.05); color: rgba(232,240,228,0.3); }
+    .key.correct { background: #5d9e6a; color: #ffffff; }
+    .key.present { background: #d4af37; color: #2b2205; }
+    /* Ruled-out letters: greyed right down so the white keys still read as available */
+    .key.absent  { background: #b6bfb4; color: rgba(30, 46, 34, 0.5); }
 
     .result-banner.win {
       background: rgba(93, 158, 106, 0.25);
@@ -238,6 +240,12 @@
       box.style.display = 'block';
     }
 
+    function hideMessage() {
+      const box = document.getElementById('clueBox');
+      box.style.display = 'none';
+      box.innerHTML = '';
+    }
+
     // Build board
     const board = document.getElementById("board");
     const tiles = [];
@@ -305,6 +313,9 @@
     function submit() {
       if (currentCol < COLS) { shake(currentRow); toast("Not enough letters"); return; }
       const word = guess.join("");
+
+      // Any new guess clears the previous message
+      hideMessage();
 
       // Easter egg: first guess is MAOMI → message only
       if (currentRow === 0 && word === "MAOMI") {
