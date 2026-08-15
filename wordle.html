@@ -407,16 +407,22 @@
         currentRow++;
         currentCol = 0;
         guess = [];
-        centerCurrentRow(true);
+
         if (won) {
           gameOver = true;
           const msgs = ["Genius!", "Magnificent!", "Impressive!", "Splendid!", "Great!", "Phew!"];
           toast(msgs[Math.min(currentRow - 1, 5)]);
           launchConfetti();
           showResult("win", "You got it! 🎉 The word was " + TARGET + ".");
+          scrollToResult();
         } else if (currentRow >= ROWS) {
           gameOver = true;
           showResult("lose", "The word was " + TARGET + ". Better luck next time!");
+          scrollToResult();
+        } else {
+          // Only chase the next row while the game is still running —
+          // otherwise this fights scrollToResult() at the end.
+          centerCurrentRow(true);
         }
       }, COLS * 80 + 300);
     }
@@ -439,6 +445,28 @@
 
       if (Math.abs(delta) < 4) return;   // already close enough
       window.scrollBy({ top: delta, behavior: smooth ? 'smooth' : 'auto' });
+    }
+
+    // Bring the end-of-game banner into view. Waits a frame so the banner has
+    // actually been laid out (it goes from display:none to block) before we
+    // measure it.
+    function scrollToResult() {
+      requestAnimationFrame(function() {
+        const banner = document.getElementById('resultBanner');
+        if (!banner) return;
+        const nav  = document.querySelector('.site-nav');
+        const kbd  = document.getElementById('keyboard');
+        const navH = nav ? nav.offsetHeight : 0;
+        const kbdH = kbd ? kbd.offsetHeight : 0;
+
+        const rect = banner.getBoundingClientRect();
+        // Sit the banner just above the keyboard rather than dead centre,
+        // so the last guessed row stays on screen with it.
+        const target = window.innerHeight - kbdH - rect.height - 24;
+        const delta  = rect.top - Math.max(navH + 12, target);
+        if (Math.abs(delta) < 4) return;
+        window.scrollBy({ top: delta, behavior: 'smooth' });
+      });
     }
 
     function ordinal(n) {
