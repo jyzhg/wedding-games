@@ -123,11 +123,13 @@ body {
   position: fixed;
   top: var(--nav-h);
   left: 0; right: 0;
-  background: var(--forest-dark);
+  /* Explicit opaque dark sage — not a variable, so nothing can render it
+     see-through against the background image */
+  background: #26402d;
   list-style: none;
   padding: 0.5rem 0 1rem;
   z-index: 199;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
 }
 
 .nav-links.open { display: flex; }
@@ -136,19 +138,23 @@ body {
 .nav-links a {
   display: block;
   text-decoration: none;
-  color: rgba(232,240,228,0.75);
-  font-size: 1rem;
-  font-weight: 500;
+  color: var(--gold-warm);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   padding: 0.9rem 1.5rem;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(200,160,90,0.14);
   transition: background 0.15s, color 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
 
+.nav-links li:last-child a { border-bottom: none; }
+
 .nav-links a:active,
 .nav-links a.active {
-  background: rgba(255,255,255,0.08);
-  color: #e8f0e4;
+  background: rgba(200,160,90,0.12);
+  color: #e8c88a;
 }
 
 /* ---- PAGE LAYOUT ---- */

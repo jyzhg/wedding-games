@@ -10,12 +10,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
   <style>
     .clue-box {
-      background: #f0f5ed;
-      border-left: 3px solid var(--sage-deep);
+      background: rgba(37, 61, 44, 0.6);
+      border-left: 3px solid var(--gold-warm);
       border-radius: 0 var(--radius) var(--radius) 0;
       padding: 0.65rem 0.875rem;
       font-size: 0.85rem;
-      color: var(--text);
+      color: #e8f0e4;
       margin-bottom: 1rem;
       display: none;
     }
@@ -42,7 +42,9 @@
       height: calc((min(100vw, 400px) - 2rem) / 5);
       max-width: 62px;
       max-height: 62px;
-      border: 2px solid var(--border);
+      /* Base: same dark sage as the tiles on the home page */
+      background: rgba(37, 61, 44, 0.5);
+      border: 2px solid rgba(255, 255, 255, 0.16);
       border-radius: 6px;
       display: flex;
       align-items: center;
@@ -50,13 +52,19 @@
       font-size: calc((min(100vw, 400px) - 2rem) / 5 * 0.5);
       font-weight: 800;
       text-transform: uppercase;
+      color: #e8f0e4;
       transition: border-color 0.1s;
     }
 
-    .tile.filled  { border-color: #888; }
-    .tile.correct { background: var(--sage-deep); border-color: var(--sage-deep); color: #fff; }
-    .tile.present { background: var(--gold-warm); border-color: var(--gold-warm); color: #fff; }
-    .tile.absent  { background: #5a6e5a; border-color: #5a6e5a; color: #fff; }
+    /* Typed but not submitted — brighter edge, same fill */
+    .tile.filled  { border-color: rgba(255, 255, 255, 0.45); }
+
+    /* States are separated by LIGHTNESS, not hue alone, so they stay readable
+       in sunlight and for colour-blind guests:
+       absent (darkest) < base < correct (lightest), gold for present. */
+    .tile.correct { background: #5d9e6a; border-color: #5d9e6a; color: #0f1c13; }
+    .tile.present { background: var(--gold-warm); border-color: var(--gold-warm); color: #2b1e08; }
+    .tile.absent  { background: #16241a; border-color: #16241a; color: rgba(232,240,228,0.45); }
     .tile.flip    { animation: flipIn 0.25s ease forwards; }
     .tile.shake   { animation: shake 0.4s ease; }
 
@@ -73,9 +81,96 @@
       60%     { transform: translateX(-3px); }
       80%     { transform: translateX(3px); }
     }
+
+    /* ---- Dark-theme overrides, scoped to this page ----
+       Kept here so wordle.html is self-contained and does not depend on
+       style.css being updated in the same push. */
+
+    .page-title    { color: #e8f0e4; }
+    .page-subtitle { color: rgba(200,220,196,0.7); }
+
+    .keyboard {
+      background: rgba(22, 36, 26, 0.95);
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .key {
+      background: rgba(255, 255, 255, 0.14);
+      color: #e8f0e4;
+    }
+
+    /* Same lightness ordering as the tiles: absent < base < correct */
+    .key.correct { background: #5d9e6a; color: #0f1c13; }
+    .key.present { background: var(--gold-warm); color: #2b1e08; }
+    .key.absent  { background: rgba(255, 255, 255, 0.05); color: rgba(232,240,228,0.3); }
+
+    .result-banner.win {
+      background: rgba(93, 158, 106, 0.25);
+      color: #b8e8c4;
+      border: 1px solid rgba(93, 158, 106, 0.5);
+    }
+    .result-banner.lose {
+      background: rgba(139, 79, 58, 0.25);
+      color: #e8b8a8;
+      border: 1px solid rgba(139, 79, 58, 0.5);
+    }
   </style>
 </head>
 <body>
+  <script>
+    // Background that never moves on Chrome or Safari mobile.
+    // Approach: inject into <body> (not html), use screen dimensions,
+    // and nest inside a fixed wrapper to force proper GPU compositing on Safari.
+    (function() {
+      var W = window.screen.width;
+      var H = window.screen.height;
+      var size = Math.max(W, H) + 200; // always oversized
+
+      // Outer wrapper: fixed to viewport, never scrolls
+      var wrap = document.createElement('div');
+      wrap.style.cssText = [
+        'position:fixed',
+        'top:0','left:0',
+        // Sized to the physical screen, NOT the viewport. The viewport changes
+        // height when the address bar hides; screen.height never does. This is
+        // what stops the background shifting on first scroll.
+        'width:' + (W + 100) + 'px',
+        'height:' + (H + 200) + 'px',
+        'z-index:-1',
+        'pointer-events:none',
+        'overflow:hidden',
+        // Force own compositing layer on Safari
+        '-webkit-transform:translate3d(0,0,0)',
+        'transform:translate3d(0,0,0)'
+      ].join(';');
+
+      // Inner div: the actual background, slightly oversized
+      var bg = document.createElement('div');
+      bg.style.cssText = [
+        'position:absolute',
+        'top:0','left:0',
+        'width:100%',
+        'height:100%',
+        'background-image:url("background.jpg")',
+        'background-size:cover',
+        'background-position:center center',
+        'background-repeat:no-repeat',
+        // Another compositing hint
+        '-webkit-transform:translate3d(0,0,0)',
+        'transform:translate3d(0,0,0)',
+        'will-change:transform'
+      ].join(';');
+
+      wrap.appendChild(bg);
+      document.body.insertBefore(wrap, document.body.firstChild);
+
+      // Strip any competing CSS backgrounds
+      // Opaque canvas underneath everything. If any frame renders before the
+      // image composites, it shows this instead of the browser's white default.
+      document.documentElement.style.background = '#1a2a1e';
+      document.body.style.background = 'transparent';
+    })();
+  </script>
     <nav class="site-nav">
     <a href="index.html" class="logo">✦ Jessica &amp; Jason</a>
     <button class="nav-toggle" id="navToggle" aria-label="Open menu">
@@ -139,7 +234,7 @@
     function showMessage(html, bg) {
       const box = document.getElementById('clueBox');
       box.innerHTML = html;
-      box.style.background = bg || '#f0f5ed';
+      box.style.background = bg || 'rgba(37, 61, 44, 0.6)';
       box.style.display = 'block';
     }
 
@@ -211,8 +306,9 @@
       if (currentCol < COLS) { shake(currentRow); toast("Not enough letters"); return; }
       const word = guess.join("");
 
+      // Easter egg: first guess is MAOMI → message only
       if (currentRow === 0 && word === "MAOMI") {
-        showMessage("🐱 <strong>Nice try...</strong> It's not that easy", "#f0f5ed");
+        showMessage("🐱 <strong>Nice try...</strong> It's not that easy", "rgba(37, 61, 44, 0.6)");
       }
 
       const result = evaluate(word, TARGET);
