@@ -9,7 +9,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Oooh+Baby&display=swap" rel="stylesheet">
   <style>
-    html, body { background: #1a2a1e; }
 
     
 
@@ -22,7 +21,8 @@
 
     /* Splash: normal flow, user physically scrolls past it */
     .splash {
-      height: 100dvh;
+      height: 100vh;   /* fallback */
+      height: 100svh;  /* pinned to the small viewport — never re-resolves */
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -332,7 +332,11 @@
       wrap.style.cssText = [
         'position:fixed',
         'top:0','left:0',
-        'width:100%','height:100%',
+        // Sized to the physical screen, NOT the viewport. The viewport changes
+        // height when the address bar hides; screen.height never does. This is
+        // what stops the background shifting on first scroll.
+        'width:' + (W + 100) + 'px',
+        'height:' + (H + 200) + 'px',
         'z-index:-1',
         'pointer-events:none',
         'overflow:hidden',
@@ -345,12 +349,12 @@
       var bg = document.createElement('div');
       bg.style.cssText = [
         'position:absolute',
-        'top:-50px','left:-50px',
-        'width:calc(100% + 100px)',
-        'height:' + size + 'px',
+        'top:0','left:0',
+        'width:100%',
+        'height:100%',
         'background-image:url("background.jpg")',
         'background-size:cover',
-        'background-position:center top',
+        'background-position:center center',
         'background-repeat:no-repeat',
         // Another compositing hint
         '-webkit-transform:translate3d(0,0,0)',
@@ -362,7 +366,9 @@
       document.body.insertBefore(wrap, document.body.firstChild);
 
       // Strip any competing CSS backgrounds
-      document.documentElement.style.background = 'transparent';
+      // Opaque canvas underneath everything. If any frame renders before the
+      // image composites, it shows this instead of the browser's white default.
+      document.documentElement.style.background = '#1a2a1e';
       document.body.style.background = 'transparent';
     })();
   </script>
@@ -495,49 +501,31 @@
         done = true;
         window.removeEventListener('scroll', onScroll);
 
-        var panel = document.querySelector('.content-panel');
+        var splashH = splash.offsetHeight;
 
-        // 1. Snapshot exactly where the content panel is on screen right now
-        var panelTop = panel.getBoundingClientRect().top;
+        // How far past the splash we already are. After the splash is gone the
+        // document is exactly splashH shorter, so this same number is the new
+        // scroll position that leaves every pixel where it currently sits.
+        var carryOver = Math.max(0, window.scrollY - splashH);
 
-        // 2. Hide splash instantly — no reflow yet
+        // Hide first, in the same synchronous block, so the browser never gets
+        // a frame in which the splash is painted anywhere new.
         splash.style.opacity       = '0';
         splash.style.pointerEvents = 'none';
-        splash.style.position      = 'fixed';
-        splash.style.inset         = '0';
 
-        // 3. Freeze content panel at its current visual position using fixed+top
-        //    This means removing the splash won't cause any jump
-        panel.style.position  = 'fixed';
-        panel.style.top       = panelTop + 'px';
-        panel.style.left      = '0';
-        panel.style.right     = '0';
-        panel.style.bottom    = '0';
-        panel.style.overflowY = 'auto';
-
-        // 4. Remove splash — panel is fixed so page height change has no effect
-        if (splash.parentNode) splash.parentNode.removeChild(splash);
-
-        // 5. Animate panel gliding up to its final position (top: 0)
-        requestAnimationFrame(function() {
-          requestAnimationFrame(function() {
-            panel.style.transition = 'top 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-            panel.style.top        = '0';
-          });
-        });
-
-        // 6. Clean up after animation
-        setTimeout(function() {
-          panel.style.transition = '';
-        }, 500);
+        // Remove from flow and restore the equivalent offset together. The panel
+        // stays in normal flow the whole time — nothing is re-positioned, so
+        // there is no reflow frame and nothing to flash.
+        splash.parentNode.removeChild(splash);
+        window.scrollTo(0, carryOver);
       }
 
       function onScroll() {
         var timeOnPage     = Date.now() - pageLoadTime;
         var splashH        = splash.offsetHeight;
-        // Trigger at 88% — enough that panel is well into view
-        // but not so late that the snap distance is zero (boring)
-        var scrolledEnough = window.scrollY > splashH * 0.88;
+        // Must be a full splash-height. That is what makes the swap above
+        // pixel-neutral — at anything less the content would jump.
+        var scrolledEnough = window.scrollY >= splashH;
         var waitedEnough   = timeOnPage > 2000;
         if (scrolledEnough && waitedEnough) dismiss();
       }
