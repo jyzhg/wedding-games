@@ -20,6 +20,19 @@ html {
   overscroll-behavior: none;
 }
 
+/* ---- Hide scrollbar (scrolling still works) ---- */
+html {
+  scrollbar-width: none;      /* Firefox, Chrome 121+ */
+  -ms-overflow-style: none;   /* legacy Edge */
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;              /* Safari, older Chrome */
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: transparent;
@@ -185,12 +198,11 @@ body {
 .game-grid { display: grid; grid-template-columns: 1fr; gap: 0.6rem; }
 
 .game-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 1rem 1.1rem;
+  background: rgba(37, 61, 44, 0.5);
+  border-radius: 18px;
+  padding: 1.15rem 1.35rem;
   text-decoration: none;
-  color: var(--text);
+  color: #e8f0e4;
   display: flex;
   align-items: center;
   gap: 0.9rem;
@@ -198,7 +210,7 @@ body {
   touch-action: manipulation;
 }
 
-.game-card:active { border-color: var(--sage-mid); }
+.game-card:active { background: rgba(37, 61, 44, 0.65); }
 
 .game-card .icon {
   width: 44px; height: 44px;
@@ -208,12 +220,18 @@ body {
   flex-shrink: 0;
 }
 
-.icon-wordle  { background: #d8ecd8; }
-.icon-connect { background: #d4e8f0; }
-.icon-cross   { background: #ecdfd8; }
+.icon-wordle,
+.icon-connect,
+.icon-cross { background: rgba(255, 255, 255, 0.1); }
 
-.game-card h2 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.1rem; color: var(--forest); }
-.game-card p  { font-size: 0.8rem; color: var(--text-muted); line-height: 1.3; }
+.game-card h2 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 400;
+  margin-bottom: 0.15rem;
+  color: #e8f0e4;
+}
+.game-card p  { font-size: 0.8rem; color: rgba(200,220,196,0.7); line-height: 1.3; }
 
 /* ---- WIN / LOSE banner ---- */
 .result-banner {
@@ -312,6 +330,6 @@ body {
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--sage-mid);
+  color: var(--gold-warm);
   margin-bottom: 0.65rem;
 }
