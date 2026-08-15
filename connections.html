@@ -9,8 +9,23 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
   <style>
+    /* --- Contrast fixes for rules inherited from style.css --- */
+
+    /* .page-subtitle uses rgba(...,0.7); the alpha drops it to 3.43:1 here */
+    .page-subtitle { color: #d5e6d1; }
+
+    /* .result-banner.win used --sage-deep (#4a7c59) on pale green = 3.94:1 */
+    .result-banner.win { color: #2f5136; }
+
+    /* Scrim panel: same treatment as the menu page */
+    .page-wrapper {
+      background: rgba(34, 55, 31, 0.75);
+      border-radius: 16px;
+      margin: 1rem auto 3rem;
+    }
+
     .instructions {
-      color: var(--text-muted);
+      color: #cbdcc7;
       font-size: 0.875rem;
       margin-bottom: 1.5rem;
     }
@@ -20,18 +35,18 @@
       align-items: center;
       gap: 0.5rem;
       font-size: 0.875rem;
-      color: var(--text-muted);
+      color: #cbdcc7;
       margin-bottom: 1.25rem;
     }
 
     .dot {
       width: 12px; height: 12px;
       border-radius: 50%;
-      background: #1a1a18;
+      background: #e8f0e4;
       transition: background 0.3s;
     }
 
-    .dot.used { background: #d3d6da; }
+    .dot.used { background: rgba(255, 255, 255, 0.22); }
 
     .word-grid {
       display: grid;
@@ -44,8 +59,10 @@
       aspect-ratio: 1.6;
       border-radius: 8px;
       border: 2px solid var(--border);
-      background: var(--surface);
-      color: var(--text);
+      /* Lighter sage than the scrim behind it, so the grid reads as raised.
+         Measured 5.91:1 with the light text even over the brightest photo area. */
+      background: rgba(58, 102, 71, 0.72);
+      color: #e8f0e4;
       font-size: 0.8rem;
       font-weight: 700;
       text-transform: uppercase;
@@ -60,8 +77,9 @@
       user-select: none;
     }
 
-    .word-btn:hover { border-color: #888; }
-    .word-btn.selected { background: var(--forest, #253d2c); color: #e8f0e4; border-color: var(--forest, #253d2c); }
+    .word-btn:hover { border-color: rgba(255, 255, 255, 0.5); }
+    /* Selected inverts to light-on-dark — 12.26:1, unmistakable at a glance */
+    .word-btn.selected { background: #e8f0e4; color: #1e2e22; border-color: #e8f0e4; }
     .word-btn.shake { animation: shake 0.4s ease; }
 
     @keyframes shake {
@@ -97,7 +115,15 @@
     .color-yellow { background: #e8d878; color: #3a3000; }
     .color-green  { background: #7aad5e; color: #122400; }
     .color-blue   { background: #8aab7e; color: #182a1e; }
-    .color-purple { background: #4a7c59; color: #e8f0e4; }
+    .color-purple { background: #356041; color: #e8f0e4; }
+
+    /* Shuffle / Deselect inherit a light fill from style.css — override here */
+    .actions .btn-secondary {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      color: #e8f0e4;
+    }
+    .actions .btn-secondary:active { background: rgba(0, 0, 0, 0.4); }
 
     .actions {
       display: flex;
@@ -106,8 +132,8 @@
     }
 
     .one-away {
-      background: #fff3cd;
-      color: #664d03;
+      background: rgba(236, 208, 122, 0.14);
+      color: #f7e8b8;
       padding: 0.5rem 1rem;
       border-radius: var(--radius);
       font-size: 0.875rem;
@@ -124,6 +150,60 @@
   </style>
 </head>
 <body>
+  <script>
+    // Background that never moves on Chrome or Safari mobile.
+    // Approach: inject into <body> (not html), use screen dimensions,
+    // and nest inside a fixed wrapper to force proper GPU compositing on Safari.
+    (function() {
+      var W = window.screen.width;
+      var H = window.screen.height;
+      var size = Math.max(W, H) + 200; // always oversized
+
+      // Outer wrapper: fixed to viewport, never scrolls
+      var wrap = document.createElement('div');
+      wrap.style.cssText = [
+        'position:fixed',
+        'top:0','left:0',
+        // Sized to the physical screen, NOT the viewport. The viewport changes
+        // height when the address bar hides; screen.height never does. This is
+        // what stops the background shifting on first scroll.
+        'width:' + (W + 100) + 'px',
+        'height:' + (H + 200) + 'px',
+        'z-index:-1',
+        'pointer-events:none',
+        'overflow:hidden',
+        // Force own compositing layer on Safari
+        '-webkit-transform:translate3d(0,0,0)',
+        'transform:translate3d(0,0,0)'
+      ].join(';');
+
+      // Inner div: the actual background, slightly oversized
+      var bg = document.createElement('div');
+      bg.style.cssText = [
+        'position:absolute',
+        'top:0','left:0',
+        'width:100%',
+        'height:100%',
+        'background-image:url("background.jpg")',
+        'background-size:cover',
+        'background-position:center center',
+        'background-repeat:no-repeat',
+        // Another compositing hint
+        '-webkit-transform:translate3d(0,0,0)',
+        'transform:translate3d(0,0,0)',
+        'will-change:transform'
+      ].join(';');
+
+      wrap.appendChild(bg);
+      document.body.insertBefore(wrap, document.body.firstChild);
+
+      // Strip any competing CSS backgrounds
+      // Opaque canvas underneath everything. If any frame renders before the
+      // image composites, it shows this instead of the browser's white default.
+      document.documentElement.style.background = '#1a2a1e';
+      document.body.style.background = 'transparent';
+    })();
+  </script>
     <nav class="site-nav">
     <a href="index.html" class="logo">✦ Jessica &amp; Jason</a>
     <button class="nav-toggle" id="navToggle" aria-label="Open menu">
