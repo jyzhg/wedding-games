@@ -15,7 +15,7 @@ const PUZZLES = {
   //   One is chosen randomly each time the page loads.
   // ----------------------------------------------------------
   wordle: {
-    words: ["Faker"]
+    words: ["Waltz", "Frond", "Union"]
   },
 
   // ----------------------------------------------------------
@@ -33,7 +33,7 @@ const PUZZLES = {
       {
         title: "Maomi's wants-to-eats-but-cannot eats",
         color: "green",
-        words: ["PLASTIC", "PLANTS", "SHOES", ""]
+        words: ["PLASTIC", "PLANTS", "SHOES", "DAIRY"]
       },
       {
         title: "Cities we've traveled together",
