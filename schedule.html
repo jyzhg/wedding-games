@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#127807;</text></svg>" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Schedule &middot; Millwick</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+  <style>
+    /* Scrim panel — 0.5 alpha — verified against the real background.jpg, whose
+       brightest region is #7b7873, so every text pair still clears WCAG AA. */
+    .schedule-page {
+      max-width: 600px;
+      margin: 1rem auto 3rem;
+      background: rgba(34, 55, 31, 0.5);
+      border-radius: 16px;
+      padding: 1.75rem 1.25rem 3rem;
+    }
+
+    .schedule-header {
+      text-align: center;
+      margin-bottom: 2.25rem;
+    }
+
+    .schedule-header .eyebrow {
+      font-size: 0.68rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #ecd07a;
+      margin-bottom: 0.6rem;
+    }
+
+    .schedule-header h1 {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(2.2rem, 6vw, 3rem);
+      font-weight: 400;
+      color: #e8f0e4;
+      line-height: 1.1;
+      margin-bottom: 0.4rem;
+    }
+
+    .schedule-header h1 em { font-style: italic; color: #b8d8a8; }
+
+    .schedule-header .sub {
+      font-size: 0.875rem;
+      color: #cbdcc7;
+    }
+
+    /* ---- Timeline ---- */
+    .timeline {
+      position: relative;
+      padding-left: 2.25rem;
+    }
+
+    /* The vertical rail. Decorative only, so the 3.11:1 measured for this
+       green is fine — it carries no information on its own. */
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 7px;
+      top: 10px;
+      bottom: 10px;
+      width: 1px;
+      background: rgba(184, 216, 168, 0.45);
+    }
+
+    .event {
+      position: relative;
+      padding-bottom: 2rem;
+    }
+
+    .event:last-child { padding-bottom: 0; }
+
+    .event::before {
+      content: '';
+      position: absolute;
+      left: -2.25rem;
+      top: 4px;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: #22371f;
+      border: 2px solid #ecd07a;
+    }
+
+    .event-time {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #ecd07a;
+      margin-bottom: 0.3rem;
+    }
+
+    .event-name {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 1.65rem;
+      font-weight: 400;
+      color: #e8f0e4;
+      line-height: 1.15;
+      margin-bottom: 0.25rem;
+    }
+
+    .event-detail {
+      font-size: 0.825rem;
+      color: #cbdcc7;
+      line-height: 1.5;
+    }
+
+    /* ---- Divider ---- */
+    .schedule-divider {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 2rem 0 1.5rem;
+    }
+    .schedule-divider::before,
+    .schedule-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.18);
+    }
+    .schedule-divider span { font-size: 0.75rem; color: #ecd07a; }
+
+    .venue-note {
+      background: rgba(0, 0, 0, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-left: 3px solid #ecd07a;
+      border-radius: 0 10px 10px 0;
+      padding: 0.875rem 1rem;
+      font-size: 0.825rem;
+      color: #cbdcc7;
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    /* Voucher link. Underlined as well as coloured, so it still reads as a
+       link for anyone who can't distinguish the gold from the body text. */
+    .voucher-link {
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 0.15rem 0;
+      color: #f2dc99;
+      font-style: normal;
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      text-decoration-thickness: 1px;
+    }
+    .voucher-link:active { color: #ffffff; }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      color: #ecd07a;
+      text-decoration: none;
+      margin-bottom: 1.5rem;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: #f7e8b8; }
+
+    @media (max-width: 480px) {
+      .timeline { padding-left: 1.9rem; }
+      .event::before { left: -1.9rem; }
+      .event-name { font-size: 1.45rem; }
+    }
+  </style>
+</head>
+<body>
+  <script>
+    // Background that never moves on Chrome or Safari mobile.
+    // Approach: inject into <body> (not html), use screen dimensions,
+    // and nest inside a fixed wrapper to force proper GPU compositing on Safari.
+    (function() {
+      var W = window.screen.width;
+      var H = window.screen.height;
+      var size = Math.max(W, H) + 200; // always oversized
+
+      // Outer wrapper: fixed to viewport, never scrolls
+      var wrap = document.createElement('div');
+      wrap.style.cssText = [
+        'position:fixed',
+        'top:0','left:0',
+        // Sized to the physical screen, NOT the viewport. The viewport changes
+        // height when the address bar hides; screen.height never does. This is
+        // what stops the background shifting on first scroll.
+        'width:' + (W + 100) + 'px',
+        'height:' + (H + 200) + 'px',
+        'z-index:-1',
+        'pointer-events:none',
+        'overflow:hidden',
+        // Force own compositing layer on Safari
+        '-webkit-transform:translate3d(0,0,0)',
+        'transform:translate3d(0,0,0)'
+      ].join(';');
+
+      // Inner div: the actual background, slightly oversized
+      var bg = document.createElement('div');
+      bg.style.cssText = [
+        'position:absolute',
+        'top:0','left:0',
+        'width:100%',
+        'height:100%',
+        'background-image:url("background.jpg")',
+        'background-size:cover',
+        'background-position:center center',
+        'background-repeat:no-repeat',
+        // Another compositing hint
+        '-webkit-transform:translate3d(0,0,0)',
+        'transform:translate3d(0,0,0)',
+        'will-change:transform'
+      ].join(';');
+
+      wrap.appendChild(bg);
+      document.body.insertBefore(wrap, document.body.firstChild);
+
+      // Strip any competing CSS backgrounds
+      // Opaque canvas underneath everything. If any frame renders before the
+      // image composites, it shows this instead of the browser's white default.
+      document.documentElement.style.background = '#1a2a1e';
+      document.body.style.background = 'transparent';
+    })();
+  </script>
+
+  <nav class="site-nav">
+    <a href="index.html" class="logo">&#10022; Jessica &amp; Jason</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="find-your-seat.html">Find Seat</a></li>
+      <li><a href="schedule.html" class="active">Schedule</a></li>
+      <li><a href="menu.html">Menu</a></li>
+      <li><a href="wordle.html">Wordle</a></li>
+      <li><a href="connections.html">Connections</a></li>
+      <li><a href="crossword.html">Crossword</a></li>
+    </ul>
+  </nav>
+  <script>
+    (function() {
+      var t = document.getElementById('navToggle');
+      var l = document.getElementById('navLinks');
+      if (!t) return;
+      t.addEventListener('click', function() { t.classList.toggle('open'); l.classList.toggle('open'); });
+      l.querySelectorAll('a').forEach(function(a) {
+        a.addEventListener('click', function() { t.classList.remove('open'); l.classList.remove('open'); });
+      });
+    })();
+  </script>
+
+  <div class="schedule-page">
+    <a href="index.html" class="back-link">&larr; Back</a>
+
+    <div class="schedule-header">
+      <p class="eyebrow">September 5th, 2026</p>
+      <h1>The <em>evening</em></h1>
+      <p class="sub">Millwick &middot; Downtown Los Angeles</p>
+    </div>
+
+    <div class="timeline">
+      <div class="event">
+        <p class="event-time">5:30 PM</p>
+        <h2 class="event-name">Ceremony</h2>
+        <p class="event-detail">Please be seated a few minutes beforehand.</p>
+      </div>
+
+      <div class="event">
+        <p class="event-time">6:00 &ndash; 7:00 PM</p>
+        <h2 class="event-name">Cocktail Hour</h2>
+        <p class="event-detail">Drinks and passed hors d&rsquo;oeuvres in the courtyard. Please make your way inside around 6:45 PM.</p>
+      </div>
+
+      <div class="event">
+        <p class="event-time">7:00 &ndash; 9:00 PM</p>
+        <h2 class="event-name">Dinner</h2>
+        <p class="event-detail">Served family style. Find your table before you sit down.</p>
+      </div>
+
+      <div class="event">
+        <p class="event-time">9:00 &ndash; 11:30 PM</p>
+        <h2 class="event-name">Party Begins!</h2>
+        <p class="event-detail">
+          Dancing and drinks until close.<br>
+        </p>
+      </div>
+    </div>
+
+    <div class="schedule-divider"><span>&#10022;</span></div>
+
+    <div class="venue-note">
+      Planning to Uber back? Get home safely, on us.  <a class="voucher-link"
+             href="https://r.uber.com/rgkkxicabws"
+             target="_blank" rel="noopener noreferrer">Claim your Uber voucher &rarr;</a>
+    </div>
+  </div>
+</body>
+</html>
