@@ -44,6 +44,11 @@ body {
   /* Prevent overscroll bounce on Chrome mobile */
   overscroll-behavior: none;
 }
+
+/* ============================================================
+   PALETTE
+   ============================================================ */
+:root {
   --sage-pale:    #eef2ec;
   --sage-soft:    #d6e2d0;
   --sage-mid:     #8aab7e;
@@ -60,7 +65,7 @@ body {
   --text-muted:   #5a7060;
   --radius:       8px;
   --radius-lg:    14px;
-  --nav-h:        52px;
+  --nav-h:        42px;
 }
 
 /* ============================================================
@@ -80,42 +85,48 @@ body {
 
 .site-nav .logo {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   font-weight: 500;
   font-style: italic;
   text-decoration: none;
   color: #e8f0e4;
   white-space: nowrap;
   flex-shrink: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
 }
 
 .nav-toggle {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 5px;
+  gap: 4px;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 8px;
+  /* Padding expands the tap target to ~40x41px on a 42px bar; the negative
+     right margin pulls the bars back so they still align to the 1rem edge. */
+  padding: 14px 10px;
   margin-left: auto;
+  margin-right: -10px;
   z-index: 201;
   -webkit-tap-highlight-color: transparent;
 }
 
 .nav-toggle span {
   display: block;
-  width: 24px;
-  height: 2px;
+  width: 21px;
+  height: 1.5px;
   background: #e8f0e4;
   border-radius: 2px;
   transition: transform 0.25s ease, opacity 0.25s ease;
   transform-origin: center;
 }
 
-.nav-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-toggle.open span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
 .nav-toggle.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
-.nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+.nav-toggle.open span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
 
 .nav-links {
   display: none;
@@ -127,9 +138,9 @@ body {
      see-through against the background image */
   background: #26402d;
   list-style: none;
-  padding: 0.5rem 0 1rem;
+  padding: 0.25rem 0 0.4rem;
   z-index: 199;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.4);
 }
 
 .nav-links.open { display: flex; }
@@ -139,12 +150,12 @@ body {
   display: block;
   text-decoration: none;
   color: var(--gold-warm);
-  font-size: 0.95rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
-  padding: 0.9rem 1.5rem;
-  border-bottom: 1px solid rgba(200,160,90,0.14);
+  padding: 0.62rem 1rem;          /* same 1rem left edge as the logo */
+  border-bottom: 1px solid rgba(200,160,90,0.12);
   transition: background 0.15s, color 0.15s;
   -webkit-tap-highlight-color: transparent;
 }

@@ -9,6 +9,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
   <style>
+    /* Scrim panel, same 0.5 alpha as menu/schedule/connections */
+    .page-wrapper {
+      background: rgba(34, 55, 31, 0.5);
+      border-radius: 16px;
+      margin: 1rem auto 3rem;
+    }
+
+    .page-title    { color: #e8f0e4; }
+    .page-subtitle { color: #cbdcc7; }
+
     .crossword-area {
       display: flex;
       flex-direction: column;
@@ -37,8 +47,8 @@
     }
 
     .cw-cell.black {
-      background: #1a1a18;
-      border-color: #1a1a18;
+      background: #16241a;
+      border-color: #16241a;
     }
 
     .cw-cell input {
@@ -87,7 +97,7 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: var(--text-muted);
+      color: #ecd07a;
       margin-bottom: 0.5rem;
     }
 
@@ -101,12 +111,12 @@
       border-radius: var(--radius);
       cursor: pointer;
       line-height: 1.35;
-      color: var(--text);
+      color: #e8f0e4;
       transition: background 0.1s;
     }
 
-    .clue-list li:hover { background: var(--bg); }
-    .clue-list li.active-clue { background: #c8e6ff; }
+    .clue-list li:hover { background: rgba(255,255,255,0.08); }
+    .clue-list li.active-clue { background: rgba(236,208,122,0.14); color: #fdf6e0; }
     .clue-list li .num { font-weight: 700; margin-right: 4px; }
 
     .crossword-actions {
@@ -126,19 +136,86 @@
   </style>
 </head>
 <body>
+  <script>
+    // Background that never moves on Chrome or Safari mobile.
+    // Approach: inject into <body> (not html), use screen dimensions,
+    // and nest inside a fixed wrapper to force proper GPU compositing on Safari.
+    (function() {
+      var W = window.screen.width;
+      var H = window.screen.height;
+      var size = Math.max(W, H) + 200; // always oversized
+
+      // Outer wrapper: fixed to viewport, never scrolls
+      var wrap = document.createElement('div');
+      wrap.style.cssText = [
+        'position:fixed',
+        'top:0','left:0',
+        // Sized to the physical screen, NOT the viewport. The viewport changes
+        // height when the address bar hides; screen.height never does. This is
+        // what stops the background shifting on first scroll.
+        'width:' + (W + 100) + 'px',
+        'height:' + (H + 200) + 'px',
+        'z-index:-1',
+        'pointer-events:none',
+        'overflow:hidden',
+        // Force own compositing layer on Safari
+        '-webkit-transform:translate3d(0,0,0)',
+        'transform:translate3d(0,0,0)'
+      ].join(';');
+
+      // Inner div: the actual background, slightly oversized
+      var bg = document.createElement('div');
+      bg.style.cssText = [
+        'position:absolute',
+        'top:0','left:0',
+        'width:100%',
+        'height:100%',
+        'background-image:url("background.jpg")',
+        'background-size:cover',
+        'background-position:center center',
+        'background-repeat:no-repeat',
+        // Another compositing hint
+        '-webkit-transform:translate3d(0,0,0)',
+        'transform:translate3d(0,0,0)',
+        'will-change:transform'
+      ].join(';');
+
+      wrap.appendChild(bg);
+      document.body.insertBefore(wrap, document.body.firstChild);
+
+      // Strip any competing CSS backgrounds
+      // Opaque canvas underneath everything. If any frame renders before the
+      // image composites, it shows this instead of the browser's white default.
+      document.documentElement.style.background = '#1a2a1e';
+      document.body.style.background = 'transparent';
+    })();
+  </script>
     <nav class="site-nav">
-    <a href="index.html" class="logo">✦ Jessica &amp; Jason</a>
+    <a href="index.html" class="logo">&#10022; Jessica &amp; Jason</a>
     <button class="nav-toggle" id="navToggle" aria-label="Open menu">
       <span></span><span></span><span></span>
     </button>
     <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
       <li><a href="find-your-seat.html">Find Seat</a></li>
+      <li><a href="schedule.html">Schedule</a></li>
       <li><a href="menu.html">Menu</a></li>
       <li><a href="wordle.html">Wordle</a></li>
       <li><a href="connections.html">Connections</a></li>
       <li><a href="crossword.html" class="active">Crossword</a></li>
     </ul>
   </nav>
+  <script>
+    (function() {
+      var t = document.getElementById('navToggle');
+      var l = document.getElementById('navLinks');
+      if (!t) return;
+      t.addEventListener('click', function() { t.classList.toggle('open'); l.classList.toggle('open'); });
+      l.querySelectorAll('a').forEach(function(a) {
+        a.addEventListener('click', function() { t.classList.remove('open'); l.classList.remove('open'); });
+      });
+    })();
+  </script>
   <script>
     (function() {
       var toggle = document.getElementById('navToggle');

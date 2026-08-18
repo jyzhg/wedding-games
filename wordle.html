@@ -175,18 +175,31 @@
     })();
   </script>
     <nav class="site-nav">
-    <a href="index.html" class="logo">✦ Jessica &amp; Jason</a>
+    <a href="index.html" class="logo">&#10022; Jessica &amp; Jason</a>
     <button class="nav-toggle" id="navToggle" aria-label="Open menu">
       <span></span><span></span><span></span>
     </button>
     <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
       <li><a href="find-your-seat.html">Find Seat</a></li>
+      <li><a href="schedule.html">Schedule</a></li>
       <li><a href="menu.html">Menu</a></li>
       <li><a href="wordle.html" class="active">Wordle</a></li>
       <li><a href="connections.html">Connections</a></li>
       <li><a href="crossword.html">Crossword</a></li>
     </ul>
   </nav>
+  <script>
+    (function() {
+      var t = document.getElementById('navToggle');
+      var l = document.getElementById('navLinks');
+      if (!t) return;
+      t.addEventListener('click', function() { t.classList.toggle('open'); l.classList.toggle('open'); });
+      l.querySelectorAll('a').forEach(function(a) {
+        a.addEventListener('click', function() { t.classList.remove('open'); l.classList.remove('open'); });
+      });
+    })();
+  </script>
   <script>
     (function() {
       var toggle = document.getElementById('navToggle');

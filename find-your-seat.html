@@ -9,9 +9,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
   <style>
-    body { background: var(--bg); }
+    body { background: transparent; }
 
     .seat-page {
+      background: rgba(34, 55, 31, 0.5);
+      border-radius: 16px;
       max-width: 640px;
       margin: 0 auto;
       padding: 2.5rem 1.5rem 5rem;
@@ -34,7 +36,7 @@
       font-size: 0.68rem;
       letter-spacing: 0.22em;
       text-transform: uppercase;
-      color: var(--sage-mid);
+      color: #ecd07a;
       margin-bottom: 0.6rem;
     }
 
@@ -42,19 +44,19 @@
       font-family: 'Cormorant Garamond', Georgia, serif;
       font-size: clamp(2.2rem, 6vw, 3.2rem);
       font-weight: 400;
-      color: var(--forest);
+      color: #e8f0e4;
       line-height: 1.1;
       margin-bottom: 0.5rem;
     }
 
     .seat-header h1 em {
       font-style: italic;
-      color: var(--sage-deep);
+      color: #b8d8a8;
     }
 
     .seat-header .sub {
       font-size: 0.875rem;
-      color: var(--text-muted);
+      color: #cbdcc7;
     }
 
     /* ---- Divider ---- */
@@ -63,13 +65,13 @@
       align-items: center;
       gap: 0.75rem;
       margin: 1.75rem 0;
-      color: var(--border);
+      color: rgba(255,255,255,0.18);
     }
     .divider::before, .divider::after {
       content: '';
       flex: 1;
       height: 1px;
-      background: var(--border);
+      background: rgba(255,255,255,0.18);
     }
     .divider span { font-size: 0.9rem; }
 
@@ -86,15 +88,15 @@
       padding: 0.9rem 1rem 0.9rem 3rem;
       border: 1.5px solid var(--border);
       border-radius: 12px;
-      background: var(--surface);
+      background: rgba(0,0,0,0.28);
       font-size: 1rem;
-      color: var(--text);
+      color: #e8f0e4;
       outline: none;
       transition: border-color 0.2s, box-shadow 0.2s;
       font-family: inherit;
     }
 
-    .search-wrap input::placeholder { color: #a0b4a0; }
+    .search-wrap input::placeholder { color: #9db09a; }
 
     .search-wrap input:focus {
       border-color: var(--sage-deep);
@@ -106,7 +108,7 @@
       left: 1rem;
       top: 50%;
       transform: translateY(-50%);
-      color: var(--sage-mid);
+      color: #ecd07a;
       font-size: 1rem;
       pointer-events: none;
     }
@@ -119,7 +121,7 @@
       background: none;
       border: none;
       cursor: pointer;
-      color: var(--sage-mid);
+      color: #ecd07a;
       font-size: 0.9rem;
       padding: 4px;
       display: none;
@@ -246,10 +248,10 @@
     .not-found {
       text-align: center;
       padding: 1.25rem;
-      color: var(--text-muted);
+      color: #cbdcc7;
       font-size: 0.875rem;
       display: none;
-      background: var(--surface);
+      background: rgba(0,0,0,0.28);
       border-radius: 10px;
       border: 1px solid var(--border);
     }
@@ -262,7 +264,7 @@
       font-size: 0.68rem;
       letter-spacing: 0.15em;
       text-transform: uppercase;
-      color: var(--sage-mid);
+      color: #ecd07a;
       margin-bottom: 0.75rem;
     }
 
@@ -307,14 +309,14 @@
       font-family: 'Cormorant Garamond', Georgia, serif;
       font-size: 0.85rem;
       font-style: italic;
-      color: var(--sage-mid);
+      color: #ecd07a;
       padding: 0.4rem 0.875rem 0.2rem;
     }
 
     .no-guests, .needs-csv {
       text-align: center;
       padding: 2rem;
-      color: var(--text-muted);
+      color: #cbdcc7;
       font-size: 0.875rem;
     }
 
@@ -323,7 +325,7 @@
       align-items: center;
       gap: 0.4rem;
       font-size: 0.8rem;
-      color: var(--sage-mid);
+      color: #ecd07a;
       text-decoration: none;
       margin-bottom: 2rem;
       transition: color 0.15s;
@@ -336,19 +338,86 @@
   </style>
 </head>
 <body>
+  <script>
+    // Background that never moves on Chrome or Safari mobile.
+    // Approach: inject into <body> (not html), use screen dimensions,
+    // and nest inside a fixed wrapper to force proper GPU compositing on Safari.
+    (function() {
+      var W = window.screen.width;
+      var H = window.screen.height;
+      var size = Math.max(W, H) + 200; // always oversized
+
+      // Outer wrapper: fixed to viewport, never scrolls
+      var wrap = document.createElement('div');
+      wrap.style.cssText = [
+        'position:fixed',
+        'top:0','left:0',
+        // Sized to the physical screen, NOT the viewport. The viewport changes
+        // height when the address bar hides; screen.height never does. This is
+        // what stops the background shifting on first scroll.
+        'width:' + (W + 100) + 'px',
+        'height:' + (H + 200) + 'px',
+        'z-index:-1',
+        'pointer-events:none',
+        'overflow:hidden',
+        // Force own compositing layer on Safari
+        '-webkit-transform:translate3d(0,0,0)',
+        'transform:translate3d(0,0,0)'
+      ].join(';');
+
+      // Inner div: the actual background, slightly oversized
+      var bg = document.createElement('div');
+      bg.style.cssText = [
+        'position:absolute',
+        'top:0','left:0',
+        'width:100%',
+        'height:100%',
+        'background-image:url("background.jpg")',
+        'background-size:cover',
+        'background-position:center center',
+        'background-repeat:no-repeat',
+        // Another compositing hint
+        '-webkit-transform:translate3d(0,0,0)',
+        'transform:translate3d(0,0,0)',
+        'will-change:transform'
+      ].join(';');
+
+      wrap.appendChild(bg);
+      document.body.insertBefore(wrap, document.body.firstChild);
+
+      // Strip any competing CSS backgrounds
+      // Opaque canvas underneath everything. If any frame renders before the
+      // image composites, it shows this instead of the browser's white default.
+      document.documentElement.style.background = '#1a2a1e';
+      document.body.style.background = 'transparent';
+    })();
+  </script>
     <nav class="site-nav">
-    <a href="index.html" class="logo">✦ Jessica &amp; Jason</a>
+    <a href="index.html" class="logo">&#10022; Jessica &amp; Jason</a>
     <button class="nav-toggle" id="navToggle" aria-label="Open menu">
       <span></span><span></span><span></span>
     </button>
     <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
       <li><a href="find-your-seat.html" class="active">Find Seat</a></li>
+      <li><a href="schedule.html">Schedule</a></li>
       <li><a href="menu.html">Menu</a></li>
       <li><a href="wordle.html">Wordle</a></li>
       <li><a href="connections.html">Connections</a></li>
       <li><a href="crossword.html">Crossword</a></li>
     </ul>
   </nav>
+  <script>
+    (function() {
+      var t = document.getElementById('navToggle');
+      var l = document.getElementById('navLinks');
+      if (!t) return;
+      t.addEventListener('click', function() { t.classList.toggle('open'); l.classList.toggle('open'); });
+      l.querySelectorAll('a').forEach(function(a) {
+        a.addEventListener('click', function() { t.classList.remove('open'); l.classList.remove('open'); });
+      });
+    })();
+  </script>
   <script>
     (function() {
       var toggle = document.getElementById('navToggle');
