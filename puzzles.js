@@ -53,25 +53,31 @@ const PUZZLES = {
   //   grid: Use letters for filled squares, "#" for black squares
   //   clues: Across and Down clues with their starting number
   // ----------------------------------------------------------
+  // ----------------------------------------------------------
+  // CROSSWORD — 9×9. Grid must stay rectangular; "#" = black square.
+  //   Clue "number" must match what the engine assigns (it numbers
+  //   left-to-right, top-to-bottom), so renumber if you move words.
+  // ----------------------------------------------------------
   crossword: {
     grid: [
-      ["C", "R", "A", "N", "E"],
-      ["H", "#", "R", "#", "A"],
-      ["E", "S", "T", "E", "R"],
-      ["F", "#", "S", "#", "T"],
-      ["S", "T", "E", "A", "K"]
+      ["#", "#", "#", "#", "#", "#", "#", "S", "#"],
+      ["#", "#", "#", "M", "#", "#", "#", "I", "#"],
+      ["O", "T", "I", "U", "M", "#", "#", "A", "#"],
+      ["#", "#", "#", "N", "#", "#", "#", "M", "#"],
+      ["V", "A", "N", "C", "O", "U", "V", "E", "R"],
+      ["#", "#", "#", "H", "#", "#", "#", "S", "#"],
+      ["#", "#", "#", "K", "#", "#", "#", "E", "#"],
+      ["#", "#", "#", "I", "#", "#", "#", "#", "#"],
+      ["#", "#", "#", "N", "#", "#", "#", "#", "#"]
     ],
     clues: {
       across: [
-        { number: 1, clue: "Large wading bird", row: 0, col: 0, length: 5 },
-        { number: 5, clue: "Female name or a chemical compound", row: 2, col: 0, length: 5 },
-        { number: 6, clue: "Cut of beef from the loin", row: 4, col: 0, length: 5 }
+        { number: 3, clue: "Our favorite restaurant in LA (closed forever)", row: 2, col: 0, length: 5 },
+        { number: 4, clue: "Our first trip together", row: 4, col: 0, length: 9 }
       ],
       down: [
-        { number: 1, clue: "A type of cheese", row: 0, col: 0, length: 5 },
-        { number: 2, clue: "Paintings, sculptures, etc.", row: 0, col: 2, length: 5 },
-        { number: 3, clue: "Compass direction (abbr.)", row: 0, col: 4, length: 5 },
-        { number: 4, clue: "Type of beef cut (4,1 = starts row 0 col 1)", row: 0, col: 1, length: 1 }
+        { number: 1, clue: "Maomi's breed", row: 0, col: 7, length: 7 },
+        { number: 2, clue: "The company where we met", row: 1, col: 3, length: 8 }
       ]
     }
   }

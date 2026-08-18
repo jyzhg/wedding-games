@@ -38,9 +38,11 @@
       user-select: none;
     }
 
+    /* Sized from the real column count (set by JS as --cw-cols), so the grid
+       always fits the screen whatever its dimensions. */
     .cw-cell {
-      width: 64px;
-      height: 64px;
+      width:  var(--cw-size);
+      height: var(--cw-size);
       border: 1px solid #ccc;
       position: relative;
       background: #fff;
@@ -78,7 +80,7 @@
       position: absolute;
       top: 2px;
       left: 3px;
-      font-size: 0.55rem;
+      font-size: calc(var(--cw-size) * 0.2);
       font-weight: 700;
       color: #444;
       pointer-events: none;
@@ -125,13 +127,7 @@
     }
 
     @media (max-width: 480px) {
-      .cw-cell { width: 52px; height: 52px; }
-      .cw-cell input { font-size: 1.1rem; padding-top: 8px; }
       .clues-panel { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 360px) {
-      .cw-cell { width: 44px; height: 44px; }
     }
   </style>
 </head>
@@ -263,6 +259,16 @@
     // -- Build grid DOM
     const cwGrid = document.getElementById("cwGrid");
     cwGrid.style.gridTemplateColumns = `repeat(${COLS}, auto)`;
+
+    // One source of truth for cell size: fit COLS across the available width,
+    // capped so a small grid doesn't render comically large on desktop.
+    function sizeGrid() {
+      const avail = Math.min(window.innerWidth, 640) - 40;   // page padding
+      const size  = Math.min(58, Math.floor(avail / COLS) - 2);
+      document.documentElement.style.setProperty('--cw-size', size + 'px');
+    }
+    sizeGrid();
+    window.addEventListener('resize', sizeGrid);
 
     const cellEls = [];
     const inputEls = [];
@@ -468,7 +474,7 @@
       for (let r = 0; r < ROWS; r++)
         for (let c = 0; c < COLS; c++)
           if (GRID[r][c] !== "#") { inputEls[r][c].value = GRID[r][c]; cellEls[r][c].classList.add("correct"); }
-      launchConfetti(); showResult("win", "Puzzle revealed! Try it fresh next time. 😊");
+      launchConfetti(); showResult("win", "Niceu!");
     }
 
     function clearAll() {
