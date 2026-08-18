@@ -255,12 +255,14 @@
     })();
   </script>
     <nav class="site-nav">
-    <a href="index.html" class="logo">✦ Jessica &amp; Jason</a>
+    <a href="index.html" class="logo">&#10022; Jessica &amp; Jason</a>
     <button class="nav-toggle" id="navToggle" aria-label="Open menu">
       <span></span><span></span><span></span>
     </button>
     <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
       <li><a href="find-your-seat.html">Find Seat</a></li>
+      <li><a href="schedule.html">Schedule</a></li>
       <li><a href="menu.html" class="active">Menu</a></li>
       <li><a href="wordle.html">Wordle</a></li>
       <li><a href="connections.html">Connections</a></li>
@@ -269,18 +271,12 @@
   </nav>
   <script>
     (function() {
-      var toggle = document.getElementById('navToggle');
-      var links  = document.getElementById('navLinks');
-      if (!toggle) return;
-      toggle.addEventListener('click', function() {
-        toggle.classList.toggle('open');
-        links.classList.toggle('open');
-      });
-      links.querySelectorAll('a').forEach(function(a) {
-        a.addEventListener('click', function() {
-          toggle.classList.remove('open');
-          links.classList.remove('open');
-        });
+      var t = document.getElementById('navToggle');
+      var l = document.getElementById('navLinks');
+      if (!t) return;
+      t.addEventListener('click', function() { t.classList.toggle('open'); l.classList.toggle('open'); });
+      l.querySelectorAll('a').forEach(function(a) {
+        a.addEventListener('click', function() { t.classList.remove('open'); l.classList.remove('open'); });
       });
     })();
   </script>
@@ -302,7 +298,7 @@
     <div class="tab-panel active" id="panel-reception">
 
       <div class="chef-note">
-        Family style catered by L.A. Roots with passed hors d'oeuvres during cocktail hour.
+        Family style catered by LA Roots with passed hors d'oeuvres during cocktail hour.
       </div>
 
       <div class="menu-section">

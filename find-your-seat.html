@@ -418,23 +418,6 @@
       });
     })();
   </script>
-  <script>
-    (function() {
-      var toggle = document.getElementById('navToggle');
-      var links  = document.getElementById('navLinks');
-      if (!toggle) return;
-      toggle.addEventListener('click', function() {
-        toggle.classList.toggle('open');
-        links.classList.toggle('open');
-      });
-      links.querySelectorAll('a').forEach(function(a) {
-        a.addEventListener('click', function() {
-          toggle.classList.remove('open');
-          links.classList.remove('open');
-        });
-      });
-    })();
-  </script>
 
   <div class="toast-container" id="toastContainer"></div>
 
@@ -453,7 +436,7 @@
       </svg>
       <p class="eyebrow">Millwick · DTLA</p>
       <h1>Find your <em>seat</em></h1>
-      <p class="sub">Search your name to discover your table</p>
+      <p class="sub">Search by name to find your table</p>
     </div>
 
 

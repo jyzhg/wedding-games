@@ -60,24 +60,24 @@ const PUZZLES = {
   // ----------------------------------------------------------
   crossword: {
     grid: [
-      ["#", "#", "#", "#", "#", "#", "#", "S", "#"],
-      ["#", "#", "#", "M", "#", "#", "#", "I", "#"],
-      ["O", "T", "I", "U", "M", "#", "#", "A", "#"],
-      ["#", "#", "#", "N", "#", "#", "#", "M", "#"],
-      ["V", "A", "N", "C", "O", "U", "V", "E", "R"],
-      ["#", "#", "#", "H", "#", "#", "#", "S", "#"],
-      ["#", "#", "#", "K", "#", "#", "#", "E", "#"],
-      ["#", "#", "#", "I", "#", "#", "#", "#", "#"],
-      ["#", "#", "#", "N", "#", "#", "#", "#", "#"]
+      ["S", "I", "A", "M", "E", "S", "E", "#", "#", "#"],
+      ["#", "#", "#", "U", "#", "#", "#", "#", "K", "#"],
+      ["#", "V", "A", "N", "C", "O", "U", "V", "E", "R"],
+      ["#", "#", "#", "C", "#", "T", "#", "#", "T", "#"],
+      ["#", "#", "#", "H", "#", "I", "#", "#", "C", "#"],
+      ["#", "#", "#", "K", "#", "U", "#", "#", "H", "#"],
+      ["#", "#", "#", "I", "#", "M", "#", "#", "U", "#"],
+      ["#", "#", "#", "N", "#", "#", "#", "#", "P", "#"]
     ],
     clues: {
       across: [
-        { number: 3, clue: "Our favorite restaurant in LA (closed forever)", row: 2, col: 0, length: 5 },
-        { number: 4, clue: "Our first trip together", row: 4, col: 0, length: 9 }
+          { number: 1, clue: "Maomi's breed of cat", row: 0, col: 0, length: 7 },
+          { number: 4, clue: "Our first trip together (city)", row: 2, col: 1, length: 9 }
       ],
       down: [
-        { number: 1, clue: "Maomi's breed", row: 0, col: 7, length: 7 },
-        { number: 2, clue: "The company where we met", row: 1, col: 3, length: 8 }
+          { number: 2, clue: "Company where we met", row: 0, col: 3, length: 8 },
+          { number: 3, clue: "Jason's favorite condiment", row: 1, col: 8, length: 7 },
+          { number: 5, clue: "Our favorite restaurant in LA (closed forever)", row: 2, col: 5, length: 5 }
       ]
     }
   }

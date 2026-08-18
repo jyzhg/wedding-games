@@ -61,14 +61,15 @@
       border: none;
       background: transparent;
       text-align: center;
-      font-size: 1.4rem;
+      /* Scales with the cell, so a wide grid on a small phone still fits */
+      font-size: calc(var(--cw-size) * 0.55);
       font-weight: 700;
       text-transform: uppercase;
       color: #1a1a18;
       caret-color: transparent;
       outline: none;
       cursor: pointer;
-      padding-top: 10px;
+      padding-top: calc(var(--cw-size) * 0.16);
     }
 
     .cw-cell.active { background: #c8e8c0; }
@@ -80,7 +81,7 @@
       position: absolute;
       top: 2px;
       left: 3px;
-      font-size: calc(var(--cw-size) * 0.2);
+      font-size: clamp(7px, calc(var(--cw-size) * 0.26), 12px);
       font-weight: 700;
       color: #444;
       pointer-events: none;
@@ -212,23 +213,6 @@
       });
     })();
   </script>
-  <script>
-    (function() {
-      var toggle = document.getElementById('navToggle');
-      var links  = document.getElementById('navLinks');
-      if (!toggle) return;
-      toggle.addEventListener('click', function() {
-        toggle.classList.toggle('open');
-        links.classList.toggle('open');
-      });
-      links.querySelectorAll('a').forEach(function(a) {
-        a.addEventListener('click', function() {
-          toggle.classList.remove('open');
-          links.classList.remove('open');
-        });
-      });
-    })();
-  </script>
 
   <div class="page-wrapper">
     <h1 class="page-title">Mini Crossword</h1>
@@ -300,11 +284,19 @@
             cell.appendChild(num);
           }
           const inp = document.createElement("input");
-          inp.maxLength = 1;
+          // NOT maxLength=1 — that makes the browser silently reject a keypress
+          // when a crossing word already filled the square. Length is enforced
+          // in handleInput instead.
+          inp.setAttribute("inputmode", "text");
+          inp.setAttribute("autocapitalize", "characters");
+          inp.setAttribute("autocomplete", "off");
+          inp.setAttribute("autocorrect", "off");
+          inp.setAttribute("spellcheck", "false");
           inp.dataset.r = r; inp.dataset.c = c;
           cell.appendChild(inp);
           inputEls[r][c] = inp;
 
+          inp.addEventListener("focus", () => { try { inp.select(); } catch (e) {} });
           inp.addEventListener("click", () => handleCellClick(r, c));
           inp.addEventListener("keydown", e => handleKeyDown(e, r, c));
           inp.addEventListener("input", e => handleInput(e, r, c));
@@ -351,23 +343,65 @@
       document.querySelectorAll(".clue-list li").forEach(li => li.classList.remove("active-clue"));
       const key = dir + "-" + clueNum;
       const liEl = document.querySelector(`[data-clue="${key}"]`);
-      if (liEl) { liEl.classList.add("active-clue"); liEl.scrollIntoView({ block: "nearest" }); }
+      if (liEl) liEl.classList.add("active-clue");   // no scrollIntoView — it scrolled the page on every keypress
     }
 
+    function focusCell(r, c) {
+      // preventScroll is the whole fix for the jitter
+      try { inputEls[r][c].focus({ preventScroll: true }); }
+      catch (e) { inputEls[r][c].focus(); }
+    }
+
+    // Is this square part of a real (2+ letter) word in each direction?
+    function hasAcross(r, c) {
+      return (c > 0 && GRID[r][c-1] !== "#") || (c+1 < COLS && GRID[r][c+1] !== "#");
+    }
+    function hasDown(r, c) {
+      return (r > 0 && GRID[r-1][c] !== "#") || (r+1 < ROWS && GRID[r+1][c] !== "#");
+    }
+
+    // Does a word BEGIN on this square (as opposed to merely passing through)?
+    function startsAcross(r, c) {
+      return hasAcross(r, c) && (c === 0 || GRID[r][c-1] === "#");
+    }
+    function startsDown(r, c) {
+      return hasDown(r, c) && (r === 0 || GRID[r-1][c] === "#");
+    }
+
+    // Set when the user picks a clue from the list. The next tap on the grid
+    // must not toggle direction, or tapping the square to raise the keyboard
+    // immediately undoes the direction the clue just chose.
+    let dirLockedByClue = false;
+
     function handleCellClick(r, c) {
-      if (activeR === r && activeC === c) {
-        direction = direction === "across" ? "down" : "across";
+      const a = hasAcross(r, c), d = hasDown(r, c);
+      if (dirLockedByClue) {
+        dirLockedByClue = false;          // consume the lock, keep the direction
+      } else if (activeR === r && activeC === c && a && d) {
+        direction = direction === "across" ? "down" : "across";  // toggle where both exist
+      } else if (!a) {
+        direction = "down";
+      } else if (!d) {
+        direction = "across";
+      } else if (startsDown(r, c) && !startsAcross(r, c)) {
+        direction = "down";      // square begins a down word, only passes through an across one
+      } else if (startsAcross(r, c) && !startsDown(r, c)) {
+        direction = "across";
       }
       activeR = r; activeC = c;
-      inputEls[r][c].focus();
+      focusCell(r, c);
       const cn = findClueAt(r, c, direction);
       if (cn) highlightClue(cn, direction);
     }
 
     function handleInput(e, r, c) {
+      // Value may hold 2 chars if the square was already filled — keep the last
       const val = e.target.value.replace(/[^a-zA-Z]/g, "").slice(-1).toUpperCase();
       e.target.value = val;
-      if (val) moveNext(r, c);
+      if (val) {
+        cellEls[r][c].classList.remove("correct", "incorrect");
+        moveNext(r, c);
+      }
       checkComplete();
     }
 
@@ -376,6 +410,13 @@
         if (inputEls[r][c].value === "") movePrev(r, c);
         else inputEls[r][c].value = "";
         e.preventDefault();
+        checkComplete();
+      } else if (/^[a-zA-Z]$/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        // Explicit handling so an already-filled square can still be overwritten
+        e.preventDefault();
+        inputEls[r][c].value = e.key.toUpperCase();
+        cellEls[r][c].classList.remove("correct", "incorrect");
+        moveNext(r, c);
         checkComplete();
       } else if (e.key === "ArrowRight") { direction = "across"; moveInDir(r, c, 0, 1); e.preventDefault(); }
       else if (e.key === "ArrowLeft")  { direction = "across"; moveInDir(r, c, 0, -1); e.preventDefault(); }
@@ -389,26 +430,29 @@
 
     function moveNext(r, c) {
       const [dr, dc] = direction === "across" ? [0, 1] : [1, 0];
-      let nr = r + dr, nc = c + dc;
-      while (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS) {
-        if (GRID[nr][nc] !== "#") { activeR = nr; activeC = nc; inputEls[nr][nc].focus(); highlightClue(findClueAt(nr, nc, direction), direction); return; }
-        nr += dr; nc += dc;
-      }
+      const nr = r + dr, nc = c + dc;
+      // Stop at the end of the current word — do NOT jump the black square
+      if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) return;
+      if (GRID[nr][nc] === "#") return;
+      activeR = nr; activeC = nc;
+      focusCell(nr, nc);
+      highlightClue(findClueAt(nr, nc, direction), direction);
     }
 
     function movePrev(r, c) {
       const [dr, dc] = direction === "across" ? [0, -1] : [-1, 0];
-      let nr = r + dr, nc = c + dc;
-      while (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS) {
-        if (GRID[nr][nc] !== "#") { activeR = nr; activeC = nc; inputEls[nr][nc].focus(); highlightClue(findClueAt(nr, nc, direction), direction); return; }
-        nr += dr; nc += dc;
-      }
+      const nr = r + dr, nc = c + dc;
+      if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) return;
+      if (GRID[nr][nc] === "#") return;
+      activeR = nr; activeC = nc;
+      focusCell(nr, nc);
+      highlightClue(findClueAt(nr, nc, direction), direction);
     }
 
     function moveInDir(r, c, dr, dc) {
       let nr = r + dr, nc = c + dc;
       while (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS) {
-        if (GRID[nr][nc] !== "#") { activeR = nr; activeC = nc; inputEls[nr][nc].focus(); highlightClue(findClueAt(nr, nc, direction), direction); return; }
+        if (GRID[nr][nc] !== "#") { activeR = nr; activeC = nc; focusCell(nr, nc); highlightClue(findClueAt(nr, nc, direction), direction); return; }
         nr += dr; nc += dc;
       }
     }
@@ -426,7 +470,7 @@
       const cl = allClues[clueIdx];
       direction = cl.dir;
       activeR = cl.row; activeC = cl.col;
-      inputEls[cl.row][cl.col].focus();
+      focusCell(cl.row, cl.col);
       highlightClue(cl.number, cl.dir);
     }
 
@@ -444,8 +488,9 @@
         li.innerHTML = `<span class="num">${cl.number}.</span>${cl.clue}`;
         li.addEventListener("click", () => {
           direction = dir;
+          dirLockedByClue = true;         // survive the follow-up tap on the grid
           activeR = cl.row; activeC = cl.col;
-          inputEls[cl.row][cl.col].focus();
+          focusCell(cl.row, cl.col);
           highlightClue(cl.number, dir);
         });
         ul.appendChild(li);
@@ -474,7 +519,7 @@
       for (let r = 0; r < ROWS; r++)
         for (let c = 0; c < COLS; c++)
           if (GRID[r][c] !== "#") { inputEls[r][c].value = GRID[r][c]; cellEls[r][c].classList.add("correct"); }
-      launchConfetti(); showResult("win", "Niceu!");
+      launchConfetti(); showResult("win", "Puzzle revealed! Try it fresh next time. 😊");
     }
 
     function clearAll() {
@@ -500,7 +545,7 @@
     // Focus first cell
     if (inputEls[0] && inputEls[0][0]) {
       activeR = 0; activeC = 0;
-      inputEls[0][0].focus();
+      focusCell(0, 0);
       highlightClue(numbers[0][0], "across");
     }
   </script>
